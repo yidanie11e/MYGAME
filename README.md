@@ -1,0 +1,1012 @@
+[index.html](https://github.com/user-attachments/files/31843279/index.html)<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>字詞配對遊戲</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        /* ===== 畫面切換 ===== */
+        .screen {
+            display: none;
+            min-height: 100vh;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            position: relative;
+        }
+        .screen.active {
+            display: flex;
+        }
+
+        /* ===== 音效開關（固定右上角） ===== */
+        #btn-sound {
+            position: fixed;
+            top: 14px;
+            right: 14px;
+            z-index: 50;
+        }
+
+        /* ===== 像素風開始畫面 ===== */
+        #screen-start {
+            background: #1b1e46;
+            overflow: hidden;
+            justify-content: center;
+        }
+
+        #stars {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .star {
+            position: absolute;
+            background: #fff;
+        }
+
+        .pixel-deco {
+            position: absolute;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .ground {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 40px;
+            z-index: 1;
+            border-top: 6px solid #2c7a33;
+            background: repeating-linear-gradient(90deg, #46b14e 0 24px, #3d9e44 24px 48px);
+            box-shadow: inset 0 6px 0 #5ccc66;
+        }
+
+        /* 像素小房子（含煙囪與炊煙） */
+        #house {
+            position: absolute;
+            left: 9%;
+            bottom: 131px;   /* box-shadow 不佔版面：視覺底部對齊草地頂部(40px)+屋高(91px) */
+            z-index: 2;
+            pointer-events: none;
+        }
+        #chimney {
+            position: absolute;
+            left: 76px;
+            top: -22px;
+            width: 16px;
+            height: 44px;
+            background: #b0bec5;
+            box-shadow: inset -4px 0 0 #78909c;
+            z-index: 0;
+        }
+        .smoke {
+            position: absolute;
+            left: 79px;
+            top: -30px;
+            width: 10px;
+            height: 10px;
+            background: #cfd8dc;
+            opacity: 0;
+            z-index: 0;
+            animation: smokeRise 4.2s linear infinite;
+        }
+        @keyframes smokeRise {
+            0%   { transform: translate(0, 0) scale(0.8); opacity: 0; }
+            12%  { opacity: 0.85; }
+            55%  { transform: translate(10px, -26px) scale(1.35); opacity: 0.55; }
+            100% { transform: translate(20px, -54px) scale(1.8); opacity: 0; }
+        }
+
+        .pixel-title {
+            font-size: clamp(36px, 8vw, 64px);
+            font-weight: 900;
+            letter-spacing: 6px;
+            color: #ffe066;
+            text-shadow: 4px 4px 0 #14142b, 8px 8px 0 rgba(0, 0, 0, 0.3);
+            text-align: center;
+            line-height: 1.2;
+            z-index: 2;
+        }
+
+        .pixel-sub {
+            display: block;
+            font-family: "Press Start 2P", monospace;
+            font-size: clamp(10px, 2.2vw, 15px);
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: 3px 3px 0 #14142b;
+            margin-top: 16px;
+            font-weight: normal;
+        }
+
+        .start-row {
+            display: flex;
+            align-items: center;
+            margin-top: 60px;
+            z-index: 2;
+        }
+
+        /* 經典 Windows 箭頭光標（像素點陣） */
+        #pixel-cursor {
+            width: 6px;
+            height: 6px;
+            background: transparent;
+            margin-left: 4px;
+            animation: cursorTap 1.2s ease-in-out infinite;
+        }
+        @keyframes cursorTap {
+            0%, 100% { transform: translate(0, -34px); }
+            50% { transform: translate(-14px, -46px); }
+        }
+
+        /* ===== 像素按鈕（硬邊、純色、硬陰影） ===== */
+        .pixel-btn {
+            font-family: inherit;
+            font-weight: 900;
+            color: #fff;
+            border: 4px solid #14142b;
+            border-radius: 0;
+            cursor: pointer;
+            padding: 16px 28px;
+            font-size: 22px;
+            line-height: 1.5;
+            letter-spacing: 3px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            background: #e53935;
+            box-shadow: inset -5px -5px 0 rgba(0, 0, 0, 0.28),
+                        inset 5px 5px 0 rgba(255, 255, 255, 0.28),
+                        8px 8px 0 rgba(0, 0, 0, 0.35);
+            transition: transform 0.05s linear, box-shadow 0.05s linear;
+        }
+        .pixel-btn span {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            opacity: 0.95;
+        }
+        .pixel-btn:active {
+            transform: translate(5px, 5px);
+            box-shadow: inset -5px -5px 0 rgba(0, 0, 0, 0.28),
+                        inset 5px 5px 0 rgba(255, 255, 255, 0.28),
+                        3px 3px 0 rgba(0, 0, 0, 0.35);
+        }
+
+        .btn-start {
+            background: #ff5252;
+            font-size: clamp(24px, 5vw, 30px);
+            padding: 18px 40px;
+        }
+
+        /* ===== 開始畫面專用元素樣式覆蓋（僅作用於指定實例，不影響其他畫面/按鈕） ===== */
+        /* Element 1：開始畫面主標題 */
+        section#screen-start > h1.pixel-title {
+            width: 218px;
+            height: 88px;
+            font-family: "Lucida Console", Monaco, monospace;
+            transform: rotate(360deg);
+            margin: 5px 0;
+        }
+        /* Element 4：開始畫面主標題內的英文副標 */
+        section#screen-start > h1.pixel-title > span.pixel-sub {
+            font-size: 20px;
+        }
+        /* Element 2：開始按鈕 */
+        button#btn-start {
+            font-family: Georgia, serif;
+        }
+        /* Element 3：開始按鈕內的中文 span */
+        button#btn-start > span {
+            font-family: "Trebuchet MS", Helvetica, sans-serif;
+            font-size: 20px;
+        }
+
+        /* ===== 難度選擇畫面 ===== */
+        .diff-list {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            margin-top: 48px;
+            width: min(92vw, 440px);
+            z-index: 2;
+        }
+        .diff-list .pixel-btn {
+            width: 100%;
+        }
+        .diff-beginner { background: #43a047; }
+        .diff-intermediate { background: #fb8c00; }
+        .diff-advanced { background: #c62828; }
+
+        /* ===== 遊戲畫面 ===== */
+        .game-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .hud {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 17px;
+        }
+
+        #score {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .btn-small {
+            font-size: 14px;
+            letter-spacing: 1px;
+            padding: 8px 14px;
+            box-shadow: inset -4px -4px 0 rgba(0, 0, 0, 0.28),
+                        inset 4px 4px 0 rgba(255, 255, 255, 0.28),
+                        5px 5px 0 rgba(0, 0, 0, 0.35);
+        }
+        .btn-small:active {
+            transform: translate(3px, 3px);
+            box-shadow: inset -4px -4px 0 rgba(0, 0, 0, 0.28),
+                        inset 4px 4px 0 rgba(255, 255, 255, 0.28),
+                        2px 2px 0 rgba(0, 0, 0, 0.35);
+        }
+
+        #btn-hint { background: #26a69a; }
+        #btn-hint.disabled { opacity: 0.45; cursor: default; }
+
+        #message {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 24px;
+            border-radius: 24px;
+            min-height: 24px;
+            margin-bottom: 20px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        /* 三種難度皆為 4 欄方格（4×4 / 4×5 / 4×6） */
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            width: 100%;
+        }
+        .board-beginner     { max-width: 430px; }
+        .board-intermediate { max-width: 465px; }
+        .board-advanced     { max-width: 500px; }
+
+        .card {
+            aspect-ratio: 1 / 1;
+            background: #fff;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            padding: 4px;
+            color: #4a4a68;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+            user-select: none;
+        }
+        /* 拼音在漢字上方 */
+        .card .py {
+            font-size: 15px;
+            font-weight: 600;
+            color: #7986cb;
+            line-height: 1;
+            font-family: "PingFang TC", "Helvetica Neue", sans-serif;
+        }
+        .card .char { font-size: 36px; font-weight: bold; line-height: 1.1; }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+        }
+
+        .card.selected {
+            background: #ffd54f;
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 8px 16px rgba(255, 193, 7, 0.5);
+        }
+        .card.selected .py { color: #8d6e00; }
+
+        .card.matched {
+            background: #81c784;
+            color: #fff;
+            cursor: default;
+            animation: pop 0.3s ease;
+        }
+        .card.matched .py { color: #e8f5e9; }
+
+        /* 配錯：震動 + 變紅 */
+        .card.wrong {
+            background: #ef5350;
+            color: #fff;
+            animation: shake 0.4s;
+        }
+        .card.wrong .py { color: #ffebee; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-7px); }
+            40% { transform: translateX(7px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+        }
+
+        /* 提示：金框閃爍 */
+        .card.hinted {
+            outline: 4px solid #ffd54f;
+            animation: hintPulse 0.5s infinite alternate;
+        }
+        @keyframes hintPulse {
+            from { box-shadow: 0 0 0 0 rgba(255, 213, 79, 0.7); }
+            to   { box-shadow: 0 0 0 10px rgba(255, 213, 79, 0.1); }
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .game-actions {
+            margin-top: 24px;
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .game-actions .pixel-btn {
+            display: none;
+            font-size: 18px;
+            padding: 12px 28px;
+        }
+        .game-actions .pixel-btn.show {
+            display: flex;
+        }
+        .btn-next { background: #43a047; }
+        .btn-upgrade { background: #fb8c00; }
+        .btn-home { background: #5c6bc0; }
+
+        @media (max-width: 520px) {
+            .board-beginner,
+            .board-intermediate,
+            .board-advanced {
+                max-width: 100%;
+            }
+            .card .char { font-size: 28px; }
+            .card .py { font-size: 12px; }
+            .game-actions .pixel-btn { font-size: 16px; padding: 10px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 音效開關 -->
+    <button id="btn-sound" class="pixel-btn btn-small">♪ ON</button>
+
+    <!-- ========== 開始畫面（像素風） ========== -->
+    <section id="screen-start" class="screen active">
+        <div id="stars"></div>
+        <h1 class="pixel-title">字詞配對<span class="pixel-sub">WORD MATCH</span></h1>
+        <div class="start-row">
+            <button id="btn-start" class="pixel-btn btn-start">START<span>開始遊戲</span></button>
+            <div id="pixel-cursor"></div>
+        </div>
+        <div id="house">
+            <div id="chimney"></div>
+            <div class="smoke"></div>
+            <div class="smoke" style="animation-delay:1.4s"></div>
+            <div class="smoke" style="animation-delay:2.8s"></div>
+            <div id="house-body"></div>
+        </div>
+        <div class="ground"></div>
+    </section>
+
+    <!-- ========== 難度選擇畫面 ========== -->
+    <section id="screen-difficulty" class="screen">
+        <h2 class="pixel-title">選擇難度<span class="pixel-sub">SELECT DIFFICULTY</span></h2>
+        <div class="diff-list">
+            <button class="pixel-btn diff-beginner" data-diff="beginner">簡單<span>BEGINNER · 4×4 方格</span></button>
+            <button class="pixel-btn diff-intermediate" data-diff="intermediate">中級<span>INTERMEDIATE · 4×5 方格</span></button>
+            <button class="pixel-btn diff-advanced" data-diff="advanced">困難<span>ADVANCED · 4×6 方格</span></button>
+        </div>
+    </section>
+
+    <!-- ========== 遊戲畫面 ========== -->
+    <section id="screen-game" class="screen">
+        <div class="game-top">
+            <button id="btn-back" class="pixel-btn btn-small">← 選單</button>
+            <div id="hud-level" class="hud">第 1 關 / 共 2 關</div>
+            <div id="score">得分：0 / 8</div>
+            <div id="timer" class="hud">⏱ 00:00</div>
+            <button id="btn-hint" class="pixel-btn btn-small">提示 <span>×1</span></button>
+        </div>
+        <div id="message">點選兩張字卡，照詞語順序組成詞語！</div>
+        <div id="game-board"></div>
+        <div class="game-actions">
+            <button id="btn-next" class="pixel-btn btn-next">下一關 ▶<span>NEXT LEVEL</span></button>
+            <button id="btn-upgrade" class="pixel-btn btn-upgrade">難度升級 ▲<span id="upgrade-target">升級至中級</span></button>
+            <button id="btn-home" class="pixel-btn btn-home">返回界面 🏠<span>HOME</span></button>
+        </div>
+    </section>
+
+    <script>
+        // ===== 詞庫：每個難度 4 套，進入難度時隨機抽 2 套對應 2 個關卡 =====
+        const WORD_BANKS = {
+            beginner: [
+                ['大小', '日月', '水火', '左右', '上下', '多少', '長短', '內外'],
+                ['正反', '出入', '明暗', '先後', '古今', '兄弟', '東西', '姐妹'],
+                ['草地', '永遠', '你們', '說話', '唱歌', '打球', '做飯', '拍手'],
+                ['花朵', '文化', '公平', '門口', '出現', '山頂', '河流', '石頭']
+            ],
+            intermediate: [
+                ['得失', '星空', '答案', '時間', '音量', '意思', '自然', '報紙', '新聞', '自由'],
+                ['新春', '金秋', '炎夏', '寒冬', '涼爽', '酷熱', '溫暖', '結冰', '融化', '四季'],
+                ['他們', '親戚', '游泳', '江河', '咖啡', '喝茶', '海浪', '安全', '花草', '青菜'],
+                ['白雲', '黑夜', '藍天', '畫家', '翠綠', '金黃', '棕樹', '古銅', '顏色', '鮮紅']
+            ],
+            advanced: [
+                ['老虎', '獅子', '大象', '野兔', '松鼠', '狐狸', '綿羊', '斑馬', '熊貓', '企鵝', '海豚', '鯨魚', '鸚鵡', '蝴蝶', '蜜蜂', '螞蟻'],
+                ['跑步', '跳遠', '游泳', '划船', '衝浪', '滑雪', '滑冰', '體操', '武術', '拳擊', '舉重', '射箭', '擊劍', '攀岩', '蹦床', '騎馬', '射擊', '拔河', '太極', '瑜伽', '街舞', '圍棋', '象棋', '馬術', '徒步', '登山'],
+                ['蘋果', '香蕉', '柑橘', '檸檬', '藍莓', '芒果', '西瓜', '葡萄', '櫻桃', '蜜桃', '椰子', '荔枝', '菠蘿', '青菜', '土豆', '洋蔥', '大蒜', '生薑', '辣椒', '香菇'],
+                ['元旦', '春節', '元宵', '清明', '端午', '七夕', '中秋', '重陽', '冬至', '臘八', '除夕', '國慶', '聖誕', '立春', '雨水', '驚蟄', '春分', '穀雨', '立夏', '小滿', '芒種', '夏至', '小暑', '大暑', '立秋', '處暑', '白露', '秋分', '寒露', '霜降', '立冬', '小雪', '大雪', '小寒', '大寒']
+            ]
+        };
+
+        const DIFF_NAME = { beginner: '簡單', intermediate: '中級', advanced: '困難' };
+        const NEXT_DIFF = { beginner: 'intermediate', intermediate: 'advanced' };
+        const HINTS = { beginner: 1, intermediate: 2, advanced: 3 };
+
+        // ===== 漢語拼音表（含聲調；輕聲不標調） =====
+        const PINYIN = {
+            // 簡單
+            '大':'dà','小':'xiǎo','日':'rì','月':'yuè','水':'shuǐ','火':'huǒ','左':'zuǒ','右':'yòu',
+            '上':'shàng','下':'xià','多':'duō','少':'shǎo','長':'cháng','短':'duǎn','內':'nèi','外':'wài',
+            '正':'zhèng','反':'fǎn','出':'chū','入':'rù','明':'míng','暗':'àn','先':'xiān','後':'hòu',
+            '古':'gǔ','今':'jīn','兄':'xiōng','弟':'dì','東':'dōng','西':'xī','姐':'jiě','妹':'mèi',
+            '草':'cǎo','地':'dì','永':'yǒng','遠':'yuǎn','你':'nǐ','們':'men','說':'shuō','話':'huà',
+            '唱':'chàng','歌':'gē','打':'dǎ','球':'qiú','做':'zuò','飯':'fàn','拍':'pāi','手':'shǒu',
+            '花':'huā','朵':'duǒ','文':'wén','化':'huà','公':'gōng','平':'píng','門':'mén','口':'kǒu',
+            '現':'xiàn','山':'shān','頂':'dǐng','河':'hé','流':'liú','石':'shí','頭':'tou',
+            // 中級
+            '得':'dé','失':'shī','星':'xīng','空':'kōng','答':'dá','案':'àn','時':'shí','間':'jiān',
+            '音':'yīn','量':'liàng','意':'yì','思':'sī','自':'zì','然':'rán','報':'bào','紙':'zhǐ',
+            '新':'xīn','聞':'wén','由':'yóu',
+            '春':'chūn','金':'jīn','秋':'qiū','炎':'yán','夏':'xià','寒':'hán','冬':'dōng',
+            '涼':'liáng','爽':'shuǎng','酷':'kù','熱':'rè','溫':'wēn','暖':'nuǎn','結':'jié',
+            '冰':'bīng','融':'róng','四':'sì','季':'jì',
+            '他':'tā','親':'qīn','戚':'qi','游':'yóu','泳':'yǒng','江':'jiāng','咖':'kā','啡':'fēi','喝':'hē',
+            '茶':'chá','海':'hǎi','浪':'làng','安':'ān','全':'quán','青':'qīng','菜':'cài',
+            '白':'bái','雲':'yún','黑':'hēi','夜':'yè','藍':'lán','天':'tiān','畫':'huà','家':'jiā',
+            '翠':'cuì','綠':'lǜ','黃':'huáng','棕':'zōng','樹':'shù','銅':'tóng','顏':'yán',
+            '色':'sè','鮮':'xiān','紅':'hóng',
+            // 困難
+            '老':'lǎo','虎':'hǔ','獅':'shī','子':'zǐ','象':'xiàng','野':'yě','兔':'tù','松':'sōng',
+            '鼠':'shǔ','狐':'hú','狸':'lí','綿':'mián','羊':'yáng','斑':'bān','馬':'mǎ','熊':'xióng',
+            '貓':'māo','企':'qǐ','鵝':'é','豚':'tún','鯨':'jīng','魚':'yú','鸚':'yīng','鵡':'wǔ',
+            '蝴':'hú','蝶':'dié','蜜':'mì','蜂':'fēng','螞':'mǎ','蟻':'yǐ','螃':'páng',
+            '跑':'pǎo','步':'bù','跳':'tiào','划':'huá','船':'chuán','衝':'chōng','浪':'làng',
+            '滑':'huá','雪':'xuě','冰':'bīng','體':'tǐ','操':'cāo','武':'wǔ','術':'shù','拳':'quán',
+            '擊':'jī','舉':'jǔ','重':'zhòng','射':'shè','箭':'jiàn','劍':'jiàn','攀':'pān',
+            '岩':'yán','蹦':'bèng','床':'chuáng','騎':'qí','拔':'bá','太':'tài','極':'jí',
+            '瑜':'yú','伽':'jiā','街':'jiē','舞':'wǔ','圍':'wéi','棋':'qí','徒':'tú','登':'dēng',
+            '蘋':'píng','果':'guǒ','香':'xiāng','蕉':'jiāo','柑':'gān','橘':'jú','檸':'níng',
+            '檬':'méng','莓':'méi','芒':'máng','瓜':'guā','葡':'pú','萄':'táo','櫻':'yīng',
+            '桃':'táo','椰':'yē','荔':'lì','枝':'zhī','菠':'bō','蘿':'luó','土':'tǔ','豆':'dòu',
+            '蔥':'cōng','蒜':'suàn','生':'shēng','薑':'jiāng','辣':'là','椒':'jiāo','菇':'gū',
+            '洋':'yáng','清':'qīng',
+            '元':'yuán','旦':'dàn','節':'jié','宵':'xiāo','端':'duān','午':'wǔ','七':'qī',
+            '夕':'xī','中':'zhōng','重':'chóng','陽':'yáng','至':'zhì','臘':'là','八':'bā',
+            '除':'chú','國':'guó','慶':'qìng','聖':'shèng','誕':'dàn','驚':'jīng','蟄':'zhé',
+            '立':'lì','雨':'yǔ','分':'fēn','穀':'gǔ','滿':'mǎn','種':'zhòng','暑':'shǔ',
+            '露':'lù','霜':'shuāng','降':'jiàng','處':'chǔ'
+        };
+
+        // 多音字按詞語定音（覆蓋 PINYIN 單字預設值）
+        const WORD_READING = {
+            '舉重': { '重': 'zhòng' },
+            '重陽': { '重': 'chóng' }
+        };
+
+        // ===== DOM 引用區（統一宣告，避免重複） =====
+        const board = document.getElementById('game-board');
+        const messageEl = document.getElementById('message');
+        const scoreEl = document.getElementById('score');
+        const timerEl = document.getElementById('timer');
+        const hudLevelEl = document.getElementById('hud-level');
+        const hintBtn = document.getElementById('btn-hint');
+        const btnNext = document.getElementById('btn-next');
+        const btnUpgrade = document.getElementById('btn-upgrade');
+        const upgradeTargetEl = document.getElementById('upgrade-target');
+        const btnHome = document.getElementById('btn-home');
+        const soundBtn = document.getElementById('btn-sound');
+        const screenGameEl = document.getElementById('screen-game');
+
+        // ===== 遊戲狀態 =====
+        let currentDiff = null;
+        let currentLevel = 0;
+        let sessionLevels = [];   // 本次遊戲隨機抽出的兩套詞語
+        let dictionary = new Set();
+        let selectedCards = [];
+        let score = 0;
+        let hintsLeft = 0;
+        let inputLocked = false;
+        let clickAnywhereActive = false;
+        const matchedWords = new Set();
+
+        // ===== 畫面切換 =====
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        // ===== Fisher-Yates 洗牌 =====
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // ===== 隨機成套選題 =====
+        // 簡單/中級：從 4 套詞庫隨機抽 2 套不同套，對應 2 個關卡
+        // 困難：從 4 套詞庫合併去重後隨機抽 24 詞，分拆為兩關各 12 詞（兩關不重複）
+        function pickLevelWords(key) {
+            const banks = WORD_BANKS[key];
+            if (key === 'advanced') {
+                const pool = shuffle([...new Set(banks.flat())]).slice(0, 24);
+                return [pool.slice(0, 12), pool.slice(12)];
+            }
+            const idx = shuffle([0, 1, 2, 3]);
+            return [banks[idx[0]], banks[idx[1]]];
+        }
+
+        // ===== 計時器：進入關卡重新計時，退出清零 =====
+        let timerInt = null;
+        let elapsed = 0;
+        function startTimer() {
+            stopTimer();
+            elapsed = 0;
+            timerEl.textContent = '⏱ 00:00';
+            timerInt = setInterval(() => {
+                elapsed++;
+                const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+                const s = String(elapsed % 60).padStart(2, '0');
+                timerEl.textContent = '⏱ ' + m + ':' + s;
+            }, 1000);
+        }
+        function stopTimer() {
+            clearInterval(timerInt);
+            timerInt = null;
+        }
+        function resetTimerDisplay() {
+            stopTimer();
+            elapsed = 0;
+            timerEl.textContent = '⏱ 00:00';
+        }
+
+        // ===== 音效系統（Web Audio 合成像素風電玩音樂） =====
+        let audioCtx = null;
+        let soundOn = true;
+        const NOTE = {
+            C3: 130.81, F3: 174.61, G3: 196.00, A3: 220.00,
+            C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99, A5: 880.00, C6: 1046.50, E6: 1318.51
+        };
+        const MELODY = [
+            'E5', null, 'G5', null, 'C6', null, 'G5', null,
+            'A5', null, 'G5', null, 'E5', null, 'C5', null,
+            'D5', null, 'E5', null, 'F5', null, 'E5', null,
+            'D5', null, 'C5', null, 'D5', null, null, null
+        ];
+        const BASS = ['C3', 'A3', 'F3', 'G3'];
+        const STEP = 0.18;
+        let bgmStep = 0, bgmNext = 0;
+
+        function playTone(freq, start, dur, type = 'square', vol = 0.08) {
+            if (!audioCtx || !soundOn) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, start);
+            gain.gain.setValueAtTime(vol, start);
+            gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(start);
+            osc.stop(start + dur);
+        }
+
+        function bgmScheduler() {
+            if (!audioCtx || !soundOn) return;
+            while (bgmNext < audioCtx.currentTime + 0.3) {
+                const m = MELODY[bgmStep % MELODY.length];
+                if (m) playTone(NOTE[m], bgmNext, 0.16, 'square', 0.035);
+                if (bgmStep % 4 === 0) {
+                    const b = BASS[Math.floor(bgmStep / 4) % BASS.length];
+                    playTone(NOTE[b], bgmNext, 0.32, 'triangle', 0.05);
+                }
+                bgmStep++;
+                bgmNext += STEP;
+            }
+        }
+
+        function ensureAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                bgmNext = audioCtx.currentTime + 0.15;
+                bgmStep = 0;
+                setInterval(bgmScheduler, 120);
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        // 正確：升調琶音
+        function sfxCorrect() {
+            if (!audioCtx || !soundOn) return;
+            const t = audioCtx.currentTime;
+            [NOTE.C5, NOTE.E5, NOTE.G5, NOTE.C6].forEach((f, i) => playTone(f, t + i * 0.09, 0.18, 'square', 0.09));
+        }
+
+        // 錯誤：降調滑音
+        function sfxWrong() {
+            if (!audioCtx || !soundOn) return;
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(392, t);
+            osc.frequency.exponentialRampToValueAtTime(130, t + 0.35);
+            gain.gain.setValueAtTime(0.1, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(t);
+            osc.stop(t + 0.35);
+        }
+
+        // 通關：勝利音階
+        function sfxWin() {
+            if (!audioCtx || !soundOn) return;
+            const t = audioCtx.currentTime;
+            [NOTE.C5, NOTE.E5, NOTE.G5, NOTE.C6, NOTE.E6].forEach((f, i) => playTone(f, t + i * 0.12, 0.3, 'square', 0.1));
+        }
+
+        // 提示音
+        function sfxHint() {
+            if (!audioCtx || !soundOn) return;
+            const t = audioCtx.currentTime;
+            [NOTE.A5, NOTE.C6].forEach((f, i) => playTone(f, t + i * 0.1, 0.15, 'triangle', 0.09));
+        }
+
+        // 瀏覽器政策：首次互動後才能啟動音訊
+        document.addEventListener('pointerdown', ensureAudio, { once: true });
+
+        soundBtn.addEventListener('click', () => {
+            soundOn = !soundOn;
+            soundBtn.textContent = soundOn ? '♪ ON' : '♪ OFF';
+            if (soundOn) {
+                ensureAudio();
+                if (audioCtx) bgmNext = audioCtx.currentTime + 0.15;
+            } else if (audioCtx) {
+                audioCtx.suspend();
+            }
+        });
+
+        // ===== 載入關卡（唯一啟動入口） =====
+        function loadLevel() {
+            const cfg = boardClassOf(currentDiff);
+            const words = sessionLevels[currentLevel];
+            dictionary = new Set(words);
+            selectedCards = [];
+            score = 0;
+            hintsLeft = HINTS[currentDiff];
+            matchedWords.clear();
+            inputLocked = false;
+            clickAnywhereActive = false;
+
+            board.className = cfg;
+            board.innerHTML = '';
+            btnNext.classList.remove('show');
+            btnUpgrade.classList.remove('show');
+            btnHome.classList.remove('show');
+            messageEl.innerText = '點選兩張字卡，照詞語順序組成詞語！';
+            hudLevelEl.innerText = '第 ' + (currentLevel + 1) + ' 關 / 共 2 關';
+            scoreEl.innerText = '得分：0 / ' + words.length;
+            updateHintBtn();
+            startTimer();
+
+            // 字卡由詞語逐詞展開（每詞 2 字），保證每張卡都能配對；多音字按所屬詞語定音
+            const cardsSpec = [];
+            words.forEach(word => {
+                [...word].forEach(ch => {
+                    const py = (WORD_READING[word] && WORD_READING[word][ch]) || PINYIN[ch] || '';
+                    cardsSpec.push({ ch, py });
+                });
+            });
+            shuffle(cardsSpec).forEach((spec, index) => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.char = spec.ch;
+                card.dataset.index = index;
+                card.innerHTML = '<span class="py">' + spec.py + '</span><span class="char">' + spec.ch + '</span>';
+                card.addEventListener('click', () => selectCard(card));
+                board.appendChild(card);
+            });
+        }
+
+        function boardClassOf(key) {
+            return key === 'beginner' ? 'board-beginner'
+                 : key === 'intermediate' ? 'board-intermediate'
+                 : 'board-advanced';
+        }
+
+        function startDifficulty(key) {
+            currentDiff = key;
+            currentLevel = 0;
+            sessionLevels = pickLevelWords(key);
+            showScreen('screen-game');
+            loadLevel();
+        }
+
+        function updateHintBtn() {
+            hintBtn.innerHTML = '提示 <span>×' + hintsLeft + '</span>';
+            hintBtn.classList.toggle('disabled', hintsLeft <= 0);
+        }
+
+        // 單擊選中，再次單擊取消選中
+        function selectCard(card) {
+            if (inputLocked) return;
+            if (card.classList.contains('matched')) return;
+            if (card.classList.contains('selected')) {
+                card.classList.remove('selected');
+                selectedCards = selectedCards.filter(c => c !== card);
+                return;
+            }
+            if (selectedCards.length >= 2) return;
+            card.classList.add('selected');
+            selectedCards.push(card);
+
+            if (selectedCards.length === 2) {
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            const [c1, c2] = selectedCards;
+            // 嚴格按照詞語構成順序：第一張＋第二張必須與詞語一致（如先「大」後「小」）
+            const word = c1.dataset.char + c2.dataset.char;
+            const total = sessionLevels[currentLevel].length;
+
+            if (dictionary.has(word) || isReasonable(word)) {
+                // 成功配對：立刻移除 selected 並加上 matched
+                c1.classList.remove('selected');
+                c2.classList.remove('selected');
+                c1.classList.add('matched');
+                c2.classList.add('matched');
+                score++;
+                matchedWords.add(word);
+                scoreEl.innerText = '得分：' + score + ' / ' + total;
+
+                if (score === total) {
+                    if (currentLevel < sessionLevels.length - 1) {
+                        messageEl.innerText = '第 ' + (currentLevel + 1) + ' 關完成！';
+                        btnNext.classList.add('show');
+                        sfxWin();
+                    } else if (currentDiff !== 'advanced') {
+                        messageEl.innerText = '恭喜通關！';
+                        upgradeTargetEl.textContent = '升級至「' + DIFF_NAME[NEXT_DIFF[currentDiff]] + '」';
+                        btnUpgrade.classList.add('show');
+                        btnHome.classList.add('show');
+                        sfxWin();
+                    } else {
+                        messageEl.innerText = '恭喜完成所有關卡，你太棒啦！（點擊畫面任意處返回主界面）';
+                        sfxWin();
+                        // 延後啟用，避免本次點擊直接觸發返回
+                        setTimeout(() => { clickAnywhereActive = true; }, 0);
+                    }
+                } else {
+                    messageEl.innerText = '太棒了！組成了：' + word;
+                    sfxCorrect();
+                }
+            } else {
+                // 配詞錯誤（順序錯誤或不成詞）：震動 + 變紅，音效降調
+                inputLocked = true;
+                c1.classList.add('wrong');
+                c2.classList.add('wrong');
+                sfxWrong();
+                setTimeout(() => {
+                    c1.classList.remove('selected', 'wrong');
+                    c2.classList.remove('selected', 'wrong');
+                    inputLocked = false;
+                }, 500);
+                messageEl.innerText = '這不是個合適的詞哦，記得照詞語的順序選，再試試！';
+            }
+            selectedCards = [];
+        }
+
+        // 簡易邏輯擴展：可加入額外接受的組合
+        // 注意：額外組合請勿耗用關卡詞語需要的字卡，否則可能無法集滿分數
+        function isReasonable(word) {
+            const reasonable = [];
+            return reasonable.includes(word);
+        }
+
+        // ===== 提示：閃爍標出可組成詞語的兩張剩餘字卡 =====
+        hintBtn.addEventListener('click', () => {
+            if (hintsLeft <= 0 || inputLocked) return;
+            const unmatched = [...board.querySelectorAll('.card')].filter(c => !c.classList.contains('matched'));
+            for (const word of dictionary) {
+                if (matchedWords.has(word)) continue;
+                const a = word[0], b = word[1];
+                const ca = unmatched.find(c => c.dataset.char === a);
+                const cb = unmatched.find(c => c.dataset.char === b && c !== ca);
+                if (ca && cb) {
+                    hintsLeft--;
+                    updateHintBtn();
+                    sfxHint();
+                    [ca, cb].forEach(c => {
+                        c.classList.add('hinted');
+                        setTimeout(() => c.classList.remove('hinted'), 2000);
+                    });
+                    return;
+                }
+            }
+        });
+
+        // ===== 按鈕事件 =====
+        document.getElementById('btn-start').addEventListener('click', () => showScreen('screen-difficulty'));
+
+        document.querySelectorAll('.diff-list .pixel-btn').forEach(btn => {
+            btn.addEventListener('click', () => startDifficulty(btn.dataset.diff));
+        });
+
+        // ← 選單：退出遊戲，計時清零
+        document.getElementById('btn-back').addEventListener('click', () => {
+            clickAnywhereActive = false;
+            resetTimerDisplay();
+            showScreen('screen-difficulty');
+        });
+
+        btnNext.addEventListener('click', () => {
+            currentLevel++;
+            loadLevel();
+        });
+
+        // 難度升級：簡單→中級、中級→困難
+        btnUpgrade.addEventListener('click', () => {
+            startDifficulty(NEXT_DIFF[currentDiff]);
+        });
+
+        // 返回主界面（開始界面）
+        btnHome.addEventListener('click', goHome);
+
+        function goHome() {
+            clickAnywhereActive = false;
+            resetTimerDisplay();
+            showScreen('screen-start');
+        }
+
+        // 困難難度全破後：點擊任意處回主界面
+        screenGameEl.addEventListener('click', () => {
+            if (clickAnywhereActive) goHome();
+        });
+
+        // ===== 像素點陣圖渲染（box-shadow 畫素） =====
+        function renderPixelArt(el, map, palette, pixelSize) {
+            const shadows = [];
+            map.forEach((row, y) => {
+                [...row].forEach((ch, x) => {
+                    if (ch !== '.' && palette[ch]) {
+                        shadows.push((x * pixelSize) + 'px ' + (y * pixelSize) + 'px 0 0 ' + palette[ch]);
+                    }
+                });
+            });
+            el.style.width = pixelSize + 'px';
+            el.style.height = pixelSize + 'px';
+            el.style.boxShadow = shadows.join(',');
+        }
+
+        // 經典 Windows 箭頭光標（K=黑輪廓 W=白色）
+        const CURSOR_MAP = [
+            'K.........',
+            'KK........',
+            'KWK.......',
+            'KWWK......',
+            'KWWWK.....',
+            'KWWWWK....',
+            'KWWWWWK...',
+            'KWWWWWWK..',
+            'KWWWWWWWK.',
+            'KWWWWWWWWK',
+            'KWWWWWKKKK',
+            'KWWKWWK...',
+            'KK.KWWK...',
+            'K...KWWK..',
+            '.....KWK..',
+            '......KK..'
+        ];
+        renderPixelArt(document.getElementById('pixel-cursor'), CURSOR_MAP,
+            { K: '#14142b', W: '#ffffff' }, 6);
+
+        // 像素小房子（K=輪廓 R=屋頂 W=牆 G=窗 D=門）
+        const HOUSE_MAP = [
+            '.......KK.......',
+            '......KRRK......',
+            '.....KRRRRK.....',
+            '....KRRRRRRK....',
+            '...KRRRRRRRRK...',
+            '..KRRRRRRRRRRK..',
+            '.KRRRRRRRRRRRRK.',
+            'KRRRRRRRRRRRRRRK',
+            '.KWWWWWWWWWWWWK.',
+            '.KWWWGGWWWWDDWK.',
+            '.KWWWGGWWWWDDWK.',
+            '.KWWWWWWWWWDDWK.',
+            '.KWWWWWWWWWDDWK.',
+            '.KKKKKKKKKKKKKK.'
+        ];
+        renderPixelArt(document.getElementById('house-body'), HOUSE_MAP,
+            { K: '#2b2b3d', R: '#d64541', W: '#f6e2b3', G: '#ffd54f', D: '#8a5a33' }, 7);
+
+        // 像素雲（O=輪廓 W=雲白）：星空中多朵隨機分佈
+        const CLOUD_MAP = [
+            '..OOO......',
+            '.OWWWOOO...',
+            '..OWWWWWO..',
+            '...OOOOO...'
+        ];
+        for (let i = 0; i < 6; i++) {
+            const cloud = document.createElement('div');
+            cloud.classList.add('pixel-deco');
+            renderPixelArt(cloud, CLOUD_MAP, { O: '#8fa3d8', W: '#f2f4ff' }, 5 + Math.floor(Math.random() * 5));
+            cloud.style.top = (5 + Math.random() * 50) + '%';
+            cloud.style.left = (Math.random() * 80) + '%';
+            document.getElementById('screen-start').appendChild(cloud);
+        }
+
+        // 像素星空
+        const starsEl = document.getElementById('stars');
+        for (let i = 0; i < 40; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            const size = Math.random() > 0.7 ? 6 : 3;
+            star.style.width = size + 'px';
+            star.style.height = size + 'px';
+            star.style.top = (Math.random() * 65) + '%';
+            star.style.left = (Math.random() * 100) + '%';
+            starsEl.appendChild(star);
+        }
+    </script>
+</body>
+</html>
+
