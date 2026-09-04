@@ -1,0 +1,247 @@
+{\rtf1\ansi\ansicpg950\cocoartf2870
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fmodern\fcharset0 Courier;\f1\froman\fcharset0 Times-Roman;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww29200\viewh16080\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs26 \cf0 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 <!DOCTYPE html>\
+<html lang="zh-Hant">\
+<head>\
+    <meta charset="UTF-8">\
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">\
+    <title>\uc0\u28450 \u23383 \u37096 \u39318 \u37197 \u23565 \u36938 \u25138 </title>\
+    <style>\
+        * \{\
+            box-sizing: border-box;\
+            font-family: system-ui, sans-serif;\
+        \}\
+        body \{\
+            background-color: #f7f9fc;\
+            max-width: 900px;\
+            margin: 30px auto;\
+            padding: 0 20px;\
+        \}\
+        h1 \{\
+            text-align: center;\
+            color: #2c3e50;\
+            font-size: 28px;\
+        \}\
+        .desc \{\
+            text-align: center;\
+            color: #555;\
+            margin-bottom: 30px;\
+        \}\
+        .container \{\
+            display: grid;\
+            grid-template-columns: 1fr 1fr;\
+            gap: 30px;\
+        \}\
+        .radical-area \{\
+            background: #e8f0fe;\
+            padding: 20px;\
+            border-radius: 12px;\
+        \}\
+        .char-area \{\
+            background: #fef3e2;\
+            padding: 20px;\
+            border-radius: 12px;\
+        \}\
+        h2 \{\
+            text-align: center;\
+            margin-top:0;\
+            color:#2c3e50;\
+            font-size:20px;\
+        \}\
+        .radical-slot \{\
+            border: 2px dashed #4472c4;\
+            min-height: 120px;\
+            border-radius: 10px;\
+            padding:12px;\
+            margin-bottom:16px;\
+            display:flex;\
+            flex-wrap:wrap;\
+            gap:8px;\
+        \}\
+        .card \{\
+            width: 90px;\
+            height:90px;\
+            background:white;\
+            border-radius:8px;\
+            display:flex;\
+            flex-direction:column;\
+            align-items:center;\
+            justify-content:center;\
+            cursor:grab;\
+            box-shadow:0 2px 5px #00000022;\
+            user-select:none;\
+        \}\
+        .card:active\{\
+            cursor:grabbing;\
+        \}\
+        .card .hanzi\{\
+            font-size:32px;\
+            font-weight:bold;\
+        \}\
+        .card .note\{\
+            font-size:12px;\
+            color:#666;\
+        \}\
+        .radical-card\{\
+            background:#dcebff;\
+        \}\
+        .drop-active\{\
+            background:#c8e0ff;\
+        \}\
+        .correct\{\
+            animation: correctAnim 0.6s ease;\
+            background:#c9f7d9 !important;\
+        \}\
+        @keyframes correctAnim\{\
+            0%\{transform:scale(1)\}\
+            50%\{transform:scale(1.15)\}\
+            100%\{transform:scale(1)\}\
+        \}\
+        .message\{\
+            text-align:center;\
+            font-size:20px;\
+            font-weight:bold;\
+            margin:20px 0;\
+            min-height:28px;\
+        \}\
+        .reset-btn\{\
+            display:block;\
+            margin:20px auto;\
+            padding:10px 24px;\
+            font-size:16px;\
+            border:none;\
+            background:#4472c4;\
+            color:white;\
+            border-radius:8px;\
+            cursor:pointer;\
+        \}\
+        .reset-btn:hover\{\
+            background:#355fa8;\
+        \}\
+    </style>\
+</head>\
+<body>\
+    <h1>\uc0\u28450 \u23383 \u37096 \u39318 \u25302 \u26355 \u37197 \u23565 </h1>\
+    <div class="desc">\uc0\u25226 \u21491 \u37002 \u28450 \u23383 \u65292 \u25302 \u21040 \u23565 \u25033 \u30340 \u37096 \u39318 \u21312 \u65372 \u36969 \u21512 \u38750 \u33775 \u35486 \u23416 \u29983 </div>\
+    <div class="message" id="msg"></div>\
+    <div class="container">\
+        <!-- \uc0\u24038 \u20596 \u65306 \u37096 \u39318 \u25918 \u32622 \u21312  -->\
+        <div class="radical-area">\
+            <h2>\uc0\u37096 \u39318 \u21312 \u65288 \u35531 \u25226 \u28450 \u23383 \u25302 \u20837 \u36889 \u35041 \u65289 </h2>\
+            <div class="radical-slot" data-radical="\uc0\u27701 ">\
+                <div class="card radical-card">\
+                    <div class="hanzi">\uc0\u27701 </div>\
+                    <div class="note">\uc0\u27700 \u65372 water</div>\
+                </div>\
+            </div>\
+            <div class="radical-slot" data-radical="\uc0\u26408 ">\
+                <div class="card radical-card">\
+                    <div class="hanzi">\uc0\u26408 </div>\
+                    <div class="note">\uc0\u27193 \u65372 tree</div>\
+                </div>\
+            </div>\
+            <div class="radical-slot" data-radical="\uc0\u21475 ">\
+                <div class="card radical-card">\
+                    <div class="hanzi">\uc0\u21475 </div>\
+                    <div class="note">\uc0\u22068 \u24052 \u65372 mouth</div>\
+                </div>\
+            </div>\
+            <div class="radical-slot" data-radical="\uc0\u34411 ">\
+                <div class="card radical-card">\
+                    <div class="hanzi">\uc0\u34411 </div>\
+                    <div class="note">\uc0\u34802 \u65372 insect</div>\
+                </div>\
+            </div>\
+        </div>\
+\
+        <!-- \uc0\u21491 \u20596 \u65306 \u21487 \u25302 \u26355 \u28450 \u23383  -->\
+        <div class="char-area">\
+            <h2>\uc0\u28450 \u23383 \u21345 \u65288 \u25302 \u26355 \u25105 \u65289 </h2>\
+            <div style="display:flex;flex-wrap:wrap;gap:10px;" id="charContainer">\
+                <div class="card" draggable="true" data-belong="\uc0\u27701 ">\u21487 </div>\
+                <div class="card" draggable="true" data-belong="\uc0\u27701 ">\u32993 </div>\
+                <div class="card" draggable="true" data-belong="\uc0\u26408 ">\u20806 </div>\
+                <div class="card" draggable="true" data-belong="\uc0\u26408 ">\u20844 </div>\
+                <div class="card" draggable="true" data-belong="\uc0\u21475 ">\u20062 </div>\
+                <div class="card" draggable="true" data-belong="\uc0\u21475 ">
+\f1\fs24 \strokec2 \uc0\u20009 
+\f0\fs26 \strokec2 </div>\
+                <div class="card" draggable="true" data-belong="\uc0\u34411 ">
+\f1\fs24 \strokec2 \uc0\u22790 
+\f0\fs26 \strokec2 </div>\
+                <div class="card" draggable="true" data-belong="\uc0\u34411 ">\u25991 </div>\
+            </div>\
+        </div>\
+    </div>\
+    <button class="reset-btn" onclick="resetGame()">\uc0\u37325 \u26032 \u38283 \u22987 \u36938 \u25138 </button>\
+\
+<script>\
+    const msgEl = document.getElementById('msg');\
+    const charContainer = document.getElementById('charContainer');\
+    let totalPairs = 8;\
+    let correctCount = 0;\
+\
+    // \uc0\u25302 \u26355 \u38283 \u22987 \
+    document.querySelectorAll('.card[draggable=true]').forEach(card => \{\
+        card.addEventListener('dragstart', (e) => \{\
+            e.dataTransfer.setData('text/plain', e.target.dataset.belong);\
+            e.dataTransfer.setData('charHtml', e.target.outerHTML);\
+            e.target.style.opacity = '0.5';\
+        \})\
+        card.addEventListener('dragend', e=>\{\
+            e.target.style.opacity = '1';\
+        \})\
+    \})\
+\
+    // \uc0\u25918 \u32622 \u21312 \u20107 \u20214 \
+    document.querySelectorAll('.radical-slot').forEach(slot => \{\
+        slot.addEventListener('dragover', (e)=>\{\
+            e.preventDefault();\
+            slot.classList.add('drop-active');\
+        \})\
+        slot.addEventListener('dragleave',()=>\{\
+            slot.classList.remove('drop-active');\
+        \})\
+        slot.addEventListener('drop',(e)=>\{\
+            e.preventDefault();\
+            slot.classList.remove('drop-active');\
+            const belong = e.dataTransfer.getData('text/plain');\
+            const targetRadical = slot.dataset.radical;\
+            const charHtml = e.dataTransfer.getData('charHtml');\
+\
+            if(belong === targetRadical)\{\
+                // \uc0\u27491 \u30906 \
+                const tempDiv = document.createElement('div');\
+                tempDiv.innerHTML = charHtml;\
+                const newCard = tempDiv.firstElementChild;\
+                newCard.classList.add('correct');\
+                newCard.draggable = false;\
+                slot.appendChild(newCard);\
+                // \uc0\u31227 \u38500 \u21491 \u37002 \u21407 \u22987 \u21345 \u29255 \
+                document.querySelector(`.card[draggable=true][data-belong="$\{belong\}"]`)?.remove();\
+                correctCount++;\
+                msgEl.textContent = `\uc0\u9989  \u31572 \u23565 \u65281 $\{targetRadical\} \u30456 \u38364 \u28450 \u23383 `;\
+                if(correctCount === totalPairs)\{\
+                    msgEl.textContent = '\uc0\u55356 \u57225  \u20840 \u37096 \u37197 \u23565 \u23436 \u25104 \u65281 ';\
+                \}\
+            \}else\{\
+                msgEl.textContent = '\uc0\u10060  \u35430 \u35430 \u21478 \u19968 \u20491 \u37096 \u39318 ';\
+                setTimeout(()=>msgEl.textContent='',1200);\
+            \}\
+        \})\
+    \})\
+\
+    function resetGame()\{\
+        location.reload();\
+    \}\
+</script>\
+</body>\
+</html>\
+}
