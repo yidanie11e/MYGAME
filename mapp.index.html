@@ -1,0 +1,766 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.7">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="zh-Hant"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;香港三維地理識字地圖&lt;/title&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script src="https://cesium.com/downloads/cesiumjs/releases/1.121/Build/Cesium/Cesium.js"&gt;&lt;/script&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;link</p>
+<p class="p1"><span class="Apple-converted-space">    </span>rel="stylesheet"</p>
+<p class="p1"><span class="Apple-converted-space">    </span>href="https://cesium.com/downloads/cesiumjs/releases/1.121/Build/Cesium/Widgets/widgets.css"</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>* {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>box-sizing: border-box;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>html, body {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin: 0;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>height: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-family: system-ui, "Noto Sans TC", sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: #102535;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>#map {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>position: absolute;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>inset: 0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.panel {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>position: absolute;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>z-index: 10;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: rgba(255, 255, 255, 0.96);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 14px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>box-shadow: 0 4px 20px #0003;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>#toolbar {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>top: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>left: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>width: 330px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>max-height: calc(100% - 65px);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>overflow: auto;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>h1 {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin: 0 0 10px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 21px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: #124e73;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>p {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin: 9px 0;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 14px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>line-height: 1.6;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>select, button, .upload-button {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font: inherit;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>select {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin: 8px 0;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid #bbb;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>button, .upload-button {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: inline-block;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border: 0;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin: 4px 3px 4px 0;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 9px 12px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: #176e9b;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: white;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 14px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>button:disabled {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>opacity: 0.5;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>cursor: default;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>#file {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: none;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>#status {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: #175b7b;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>overflow-wrap: anywhere;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.note {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: #59636b;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>#card {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>right: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>top: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>width: 250px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>text-align: center;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>#word {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 94px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>line-height: 1.2;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: #175c85;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>#pinyin {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 26px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: #555;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>#place {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 17px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-weight: bold;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>#meaning, #sentence {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>text-align: left;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>#sentence {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: #edf6fc;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>@media (max-width: 650px) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>#toolbar {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>width: calc(100% - 24px);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>max-height: 36%;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>#card {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>top: auto;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>bottom: 45px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>width: 210px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>max-height: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>overflow: auto;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>#word {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>font-size: 68px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="map" aria-label="香港三維互動地圖"&gt;&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;section id="toolbar" class="panel"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;h1&gt;香港三維地理識字&lt;/h1&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>點擊彩色學習標記，認識「山、河、湖、海」。</p>
+<p class="p1"><span class="Apple-converted-space">      </span>也可以先從選單前往學習地點。</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/p&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;label for="places"&gt;選擇學習地點&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;select id="places" disabled&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;option value=""&gt;請選擇……&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/select&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button id="home" disabled&gt;香港全景&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button id="jiang"&gt;認識「江」&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;label class="upload-button" for="file"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>匯入 GeoJSON</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;input</p>
+<p class="p1"><span class="Apple-converted-space">        </span>id="file"</p>
+<p class="p1"><span class="Apple-converted-space">        </span>type="file"</p>
+<p class="p1"><span class="Apple-converted-space">        </span>accept=".geojson,.json"</p>
+<p class="p1"><span class="Apple-converted-space">        </span>disabled</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;p id="status" role="status"&gt;正在準備地圖……&lt;/p&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;p class="note"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>電腦操作：拖動移動、滾輪縮放，</p>
+<p class="p1"><span class="Apple-converted-space">      </span>按住 Ctrl 並拖動調整俯仰視角。</p>
+<p class="p1"><span class="Apple-converted-space">      </span>觸控裝置可用雙指縮放及調整視角。</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/p&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;p class="note"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>內置圓點是概略位置示例，不代表整座山、</p>
+<p class="p1"><span class="Apple-converted-space">      </span>整條河或完整水域。沒有配置資料的地方，</p>
+<p class="p1"><span class="Apple-converted-space">      </span>不會自動判斷地物。</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/section&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;section</p>
+<p class="p1"><span class="Apple-converted-space">    </span>id="card"</p>
+<p class="p1"><span class="Apple-converted-space">    </span>class="panel"</p>
+<p class="p1"><span class="Apple-converted-space">    </span>hidden</p>
+<p class="p1"><span class="Apple-converted-space">    </span>aria-live="polite"</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="word"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="pinyin"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;p id="place"&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;p id="meaning"&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;p id="sentence"&gt;&lt;/p&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button id="speak"&gt;🔊 普通話朗讀&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button id="close"&gt;關閉&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/section&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ===== 1. 在這裏貼上你的 Token =====</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const CESIUM_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6InVPY2E1SDJubExKVmdFTmwiLCJqdGkiOiIzZDY2MDQ3MC1jMTVjLTQzYzYtODBkNC0zYTYxMDRmOGNhY2QiLCJpZCI6NDg2MjcwLCJpc3MiOiJodHRwczovL2FwaS5jZXNpdW0uY29tIiwiYXVkIjoidW5kZWZpbmVkX2RlZmF1bHQiLCJpYXQiOjE3ODkwMTA3MTd9.8UquQ2fk6Gzs58DygGU7zjU1wFDLe0EeeZYlnq3Pcg8";</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>const $ = id =&gt; document.getElementById(id);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ===== 2. 識字資料 =====</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const vocabulary = {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>"山": {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>pinyin: "shān",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>meaning: "山是地面上明顯隆起的地形。",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>sentence: "這是一座山。",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>color: "#ab642d"</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>"江": {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>pinyin: "jiāng",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>meaning:</p>
+<p class="p1"><span class="Apple-converted-space">          </span>"「江」常用於河流名稱，例如長江。" +</p>
+<p class="p1"><span class="Apple-converted-space">          </span>"「江」和「河」的命名有歷史及地域差異，" +</p>
+<p class="p1"><span class="Apple-converted-space">          </span>"不能只按大小區分。",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>sentence: "長江是一條大河。",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>color: "#287ec3"</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>"河": {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>pinyin: "hé",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>meaning: "河是水流沿着河道流動的水體。",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>sentence: "河水向前流。",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>color: "#168bb5"</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>"湖": {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>pinyin: "hú",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>meaning:</p>
+<p class="p1"><span class="Apple-converted-space">          </span>"湖是陸地上的一片水域，可以是天然形成的，" +</p>
+<p class="p1"><span class="Apple-converted-space">          </span>"也可以由人工建造。",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>sentence: "湖裏有水。",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>color: "#159b83"</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>"海": {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>pinyin: "hǎi",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>meaning: "海是與大洋相連的廣闊水域。",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>sentence: "海上有船。",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>color: "#345bc3"</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ===== 3. 香港教學示例 =====</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// 以下為概略經緯度，不是測繪級資料。</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// 點標記只表示學習位置，不代表地物完整範圍。</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const examples = [</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "大帽山",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>word: "山",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>lon: 114.1245,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>lat: 22.4102</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "鳳凰山",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>word: "山",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>lon: 113.9213,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>lat: 22.2491</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "獅子山",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>word: "山",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>lon: 114.1872,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>lat: 22.3526</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "太平山",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>word: "山",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>lon: 114.1437,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>lat: 22.2759</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "城門河 · 河段示例",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>word: "河",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>lon: 114.1990,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>lat: 22.3890,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>sentence: "這是城門河。"</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "香港公園 · 人工湖位置示例",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>word: "湖",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>lon: 114.1612,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>lat: 22.2774,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>meaning:</p>
+<p class="p1"><span class="Apple-converted-space">          </span>"這裏用香港公園的人工湖認識「湖」字。" +</p>
+<p class="p1"><span class="Apple-converted-space">          </span>"人工湖由人建造，不是天然湖泊。",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>sentence: "公園裏有一個人工湖。"</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "維多利亞港 · 海域示例",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>word: "海",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>lon: 114.1710,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>lat: 22.2930,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>meaning:</p>
+<p class="p1"><span class="Apple-converted-space">          </span>"維多利亞港位於香港島與九龍之間。" +</p>
+<p class="p1"><span class="Apple-converted-space">          </span>"這裏是海水水域，不是湖泊。",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>sentence: "海上有渡輪。"</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "香港南面海域 · 示例",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>word: "海",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>lon: 114.2000,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>lat: 22.1800,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>sentence: "我們看見藍色的海。"</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>let viewer;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let currentLesson = null;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Cesium Entity → 教學內容</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const lessons = new Map();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function status(message) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>$("status").textContent = message;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function showLesson(data) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const base = vocabulary[data.word];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (!base) return;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>currentLesson = {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>...base,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>...data</p>
+<p class="p1"><span class="Apple-converted-space">      </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>$("word").textContent = data.word;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>$("pinyin").textContent = base.pinyin;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>$("place").textContent = data.name || "地理學習";</p>
+<p class="p1"><span class="Apple-converted-space">      </span>$("meaning").textContent = currentLesson.meaning;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>$("sentence").textContent = currentLesson.sentence;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>$("card").hidden = false;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function showHongKong() {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (!viewer) return;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>viewer.camera.flyTo({</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// 香港及周邊水域的觀察視窗，不是行政疆界。</p>
+<p class="p1"><span class="Apple-converted-space">        </span>destination: Cesium.Rectangle.fromDegrees(</p>
+<p class="p1"><span class="Apple-converted-space">          </span>113.80, 22.12, 114.52, 22.60</p>
+<p class="p1"><span class="Apple-converted-space">        </span>),</p>
+<p class="p1"><span class="Apple-converted-space">        </span>duration: 1.5</p>
+<p class="p1"><span class="Apple-converted-space">      </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function addExample(data, index) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const entity = viewer.entities.add({</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: data.name,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>position: Cesium.Cartesian3.fromDegrees(</p>
+<p class="p1"><span class="Apple-converted-space">          </span>data.lon, data.lat</p>
+<p class="p1"><span class="Apple-converted-space">        </span>),</p>
+<p class="p1"><span class="Apple-converted-space">        </span>point: {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>pixelSize: 17,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>color: Cesium.Color.fromCssColorString(</p>
+<p class="p1"><span class="Apple-converted-space">            </span>vocabulary[data.word].color</p>
+<p class="p1"><span class="Apple-converted-space">          </span>),</p>
+<p class="p1"><span class="Apple-converted-space">          </span>outlineColor: Cesium.Color.WHITE,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>outlineWidth: 3,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>heightReference:</p>
+<p class="p1"><span class="Apple-converted-space">            </span>Cesium.HeightReference.CLAMP_TO_GROUND,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>disableDepthTestDistance: Number.POSITIVE_INFINITY</p>
+<p class="p1"><span class="Apple-converted-space">        </span>},</p>
+<p class="p1"><span class="Apple-converted-space">        </span>label: {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>text: data.name,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>font: "15px sans-serif",</p>
+<p class="p1"><span class="Apple-converted-space">          </span>fillColor: Cesium.Color.WHITE,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>outlineColor: Cesium.Color.BLACK,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>outlineWidth: 3,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>style: Cesium.LabelStyle.FILL_AND_OUTLINE,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>pixelOffset: new Cesium.Cartesian2(0, -28),</p>
+<p class="p1"><span class="Apple-converted-space">          </span>heightReference:</p>
+<p class="p1"><span class="Apple-converted-space">            </span>Cesium.HeightReference.CLAMP_TO_GROUND,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>disableDepthTestDistance: Number.POSITIVE_INFINITY,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>distanceDisplayCondition:</p>
+<p class="p1"><span class="Apple-converted-space">            </span>new Cesium.DistanceDisplayCondition(0, 55000)</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>lessons.set(entity, data);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const option = document.createElement("option");</p>
+<p class="p1"><span class="Apple-converted-space">      </span>option.value = String(index);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>option.textContent = data.name;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>$("places").appendChild(option);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>async function visitExample(data) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>status("正在前往：" + data.name);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const location = Cesium.Cartographic.fromDegrees(</p>
+<p class="p1"><span class="Apple-converted-space">        </span>data.lon, data.lat</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>let height = 0;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const result = await Cesium.sampleTerrainMostDetailed(</p>
+<p class="p1"><span class="Apple-converted-space">          </span>viewer.terrainProvider,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>[location]</p>
+<p class="p1"><span class="Apple-converted-space">        </span>);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>height = Number.isFinite(result[0].height)</p>
+<p class="p1"><span class="Apple-converted-space">          </span>? result[0].height</p>
+<p class="p1"><span class="Apple-converted-space">          </span>: 0;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>} catch (error) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>console.warn("未取得詳細地形高度。", error);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>height = viewer.scene.globe.getHeight(location) || 0;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const target = Cesium.Cartesian3.fromDegrees(</p>
+<p class="p1"><span class="Apple-converted-space">        </span>data.lon, data.lat, Math.max(0, height)</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const range =</p>
+<p class="p1"><span class="Apple-converted-space">        </span>data.word === "山" ? 5000 :</p>
+<p class="p1"><span class="Apple-converted-space">        </span>data.word === "湖" ? 1000 : 3500;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>viewer.camera.lookAt(</p>
+<p class="p1"><span class="Apple-converted-space">        </span>target,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>new Cesium.HeadingPitchRange(</p>
+<p class="p1"><span class="Apple-converted-space">          </span>Cesium.Math.toRadians(20),</p>
+<p class="p1"><span class="Apple-converted-space">          </span>Cesium.Math.toRadians(-40),</p>
+<p class="p1"><span class="Apple-converted-space">          </span>range</p>
+<p class="p1"><span class="Apple-converted-space">        </span>)</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 解除環繞鎖定，恢復一般地圖操作。</p>
+<p class="p1"><span class="Apple-converted-space">      </span>viewer.camera.lookAtTransform(</p>
+<p class="p1"><span class="Apple-converted-space">        </span>Cesium.Matrix4.IDENTITY</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>status("請點擊彩色圓點：" + data.name);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function setupClick() {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>viewer.screenSpaceEventHandler.setInputAction(</p>
+<p class="p1"><span class="Apple-converted-space">        </span>event =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const objects = viewer.scene.drillPick(event.position);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>for (const object of objects) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (object.id &amp;&amp; lessons.has(object.id)) {</p>
+<p class="p1"><span class="Apple-converted-space">              </span>showLesson(lessons.get(object.id));</p>
+<p class="p1"><span class="Apple-converted-space">              </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>$("card").hidden = true;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>status(</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"這個位置未配置學習地物。" +</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"請點擊彩色標記，或匯入河流／水域資料。"</p>
+<p class="p1"><span class="Apple-converted-space">          </span>);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>},</p>
+<p class="p1"><span class="Apple-converted-space">        </span>Cesium.ScreenSpaceEventType.LEFT_CLICK</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ===== 4. 匯入 GeoJSON =====</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// 每個 Feature 的 properties.word 必須是：</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// 山、江、河、湖、海之一。</p>
+<p class="p1"><span class="Apple-converted-space">    </span>async function importGeoJSON(file) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>let source;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>status("正在匯入資料……");</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const json = JSON.parse(await file.text());</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (</p>
+<p class="p1"><span class="Apple-converted-space">          </span>json.type !== "FeatureCollection" ||</p>
+<p class="p1"><span class="Apple-converted-space">          </span>!Array.isArray(json.features) ||</p>
+<p class="p1"><span class="Apple-converted-space">          </span>json.features.length === 0</p>
+<p class="p1"><span class="Apple-converted-space">        </span>) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>throw new Error(</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"請提供非空的 GeoJSON FeatureCollection。"</p>
+<p class="p1"><span class="Apple-converted-space">          </span>);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>for (const feature of json.features) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const word = feature.properties?.word;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (</p>
+<p class="p1"><span class="Apple-converted-space">            </span>!Object.prototype.hasOwnProperty.call(</p>
+<p class="p1"><span class="Apple-converted-space">              </span>vocabulary, word</p>
+<p class="p1"><span class="Apple-converted-space">            </span>)</p>
+<p class="p1"><span class="Apple-converted-space">          </span>) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>throw new Error(</p>
+<p class="p1"><span class="Apple-converted-space">              </span>"每個地物的 properties.word " +</p>
+<p class="p1"><span class="Apple-converted-space">              </span>"必須是山、江、河、湖或海。"</p>
+<p class="p1"><span class="Apple-converted-space">            </span>);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (!feature.geometry) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>throw new Error("地物不能缺少 geometry。");</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>source = await Cesium.GeoJsonDataSource.load(json, {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>clampToGround: true,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>stroke: Cesium.Color.DEEPSKYBLUE,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>strokeWidth: 10,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>fill: Cesium.Color.DEEPSKYBLUE.withAlpha(0.35)</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>await viewer.dataSources.add(source);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>for (const entity of source.entities.values) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const properties = entity.properties?.getValue(</p>
+<p class="p1"><span class="Apple-converted-space">            </span>viewer.clock.currentTime</p>
+<p class="p1"><span class="Apple-converted-space">          </span>);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (!properties) continue;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>const word = properties.word;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const base = vocabulary[word];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>const data = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>word,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>name: properties.name || "匯入的學習地物",</p>
+<p class="p1"><span class="Apple-converted-space">            </span>meaning: properties.meaning || base.meaning,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>sentence: properties.sentence || base.sentence</p>
+<p class="p1"><span class="Apple-converted-space">          </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>lessons.set(entity, data);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>const color = Cesium.Color.fromCssColorString(</p>
+<p class="p1"><span class="Apple-converted-space">            </span>base.color</p>
+<p class="p1"><span class="Apple-converted-space">          </span>);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>// 河流線：加寬以方便點擊。</p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (entity.polyline) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>entity.polyline.width = 10;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>entity.polyline.material = color;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>// 湖泊或海域面：點擊面內即可觸發。</p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (entity.polygon) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>entity.polygon.material = color.withAlpha(0.4);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (entity.billboard) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>entity.billboard.color = color;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>await viewer.flyTo(source);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>status(</p>
+<p class="p1"><span class="Apple-converted-space">          </span>"已匯入 " + json.features.length +</p>
+<p class="p1"><span class="Apple-converted-space">          </span>" 個地物。可點擊其標記、線或面。"</p>
+<p class="p1"><span class="Apple-converted-space">        </span>);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>} catch (error) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>console.error(error);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (source &amp;&amp; viewer.dataSources.contains(source)) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>for (const entity of source.entities.values) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>lessons.delete(entity);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>viewer.dataSources.remove(source, true);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>status("匯入失敗：" + error.message);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>} finally {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>$("file").value = "";</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ===== 5. 朗讀 =====</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function speakLesson() {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (!currentLesson) return;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (!("speechSynthesis" in window)) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>status("這個瀏覽器不支援語音朗讀。");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>window.speechSynthesis.cancel();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const utterance = new SpeechSynthesisUtterance(</p>
+<p class="p1"><span class="Apple-converted-space">        </span>currentLesson.word + "。" + currentLesson.sentence</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>utterance.lang = "zh-CN";</p>
+<p class="p1"><span class="Apple-converted-space">      </span>utterance.rate = 0.8;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const voice = window.speechSynthesis.getVoices().find(</p>
+<p class="p1"><span class="Apple-converted-space">        </span>item =&gt; /^zh[-_]CN$/i.test(item.lang)</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (voice) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>utterance.voice = voice;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>utterance.onerror = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>status(</p>
+<p class="p1"><span class="Apple-converted-space">          </span>"朗讀失敗：請檢查裝置是否安裝中文語音，" +</p>
+<p class="p1"><span class="Apple-converted-space">          </span>"或改用其他瀏覽器。"</p>
+<p class="p1"><span class="Apple-converted-space">        </span>);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>window.speechSynthesis.speak(utterance);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ===== 6. 啟動地圖 =====</p>
+<p class="p1"><span class="Apple-converted-space">    </span>async function init() {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (typeof Cesium === "undefined") {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>throw new Error(</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"Cesium 程式庫未載入，請檢查網絡。"</p>
+<p class="p1"><span class="Apple-converted-space">          </span>);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (</p>
+<p class="p1"><span class="Apple-converted-space">          </span>!CESIUM_TOKEN ||</p>
+<p class="p1"><span class="Apple-converted-space">          </span>CESIUM_TOKEN.includes("在這裏")</p>
+<p class="p1"><span class="Apple-converted-space">        </span>) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>throw new Error(</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"請先在程式內填入你的 Cesium Token。"</p>
+<p class="p1"><span class="Apple-converted-space">          </span>);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>Cesium.Ion.defaultAccessToken = CESIUM_TOKEN;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>status("正在載入三維地形及影像……");</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const [terrainProvider, imageryProvider] =</p>
+<p class="p1"><span class="Apple-converted-space">          </span>await Promise.all([</p>
+<p class="p1"><span class="Apple-converted-space">            </span>Cesium.createWorldTerrainAsync(),</p>
+<p class="p1"><span class="Apple-converted-space">            </span>Cesium.createWorldImageryAsync()</p>
+<p class="p1"><span class="Apple-converted-space">          </span>]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>viewer = new Cesium.Viewer("map", {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>terrainProvider,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>baseLayer: new Cesium.ImageryLayer(imageryProvider),</p>
+<p class="p1"><span class="Apple-converted-space">          </span>animation: false,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>timeline: false,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>baseLayerPicker: false,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>geocoder: false,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>homeButton: false,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>sceneModePicker: false,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>navigationHelpButton: false,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>infoBox: false,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>selectionIndicator: false</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// 使用實際地形比例，不額外誇大山高。</p>
+<p class="p1"><span class="Apple-converted-space">        </span>viewer.scene.verticalExaggeration = 1;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>viewer.scene.globe.depthTestAgainstTerrain = true;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// 不隱藏 Cesium 或影像供應商的署名。</p>
+<p class="p1"><span class="Apple-converted-space">        </span>examples.forEach(addExample);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>setupClick();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>$("home").disabled = false;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>$("places").disabled = false;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>$("file").disabled = false;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>showHongKong();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>status(</p>
+<p class="p1"><span class="Apple-converted-space">          </span>"地圖已啟動，共 " + examples.length +</p>
+<p class="p1"><span class="Apple-converted-space">          </span>" 個學習示例。請選擇地點或點擊彩色圓點。"</p>
+<p class="p1"><span class="Apple-converted-space">        </span>);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>} catch (error) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>console.error(error);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>status(</p>
+<p class="p1"><span class="Apple-converted-space">          </span>"載入失敗：" + error.message +</p>
+<p class="p1"><span class="Apple-converted-space">          </span>" 請檢查 Token、資產權限及網絡。"</p>
+<p class="p1"><span class="Apple-converted-space">        </span>);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ===== 7. 介面事件 =====</p>
+<p class="p1"><span class="Apple-converted-space">    </span>$("home").addEventListener("click", showHongKong);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>$("places").addEventListener("change", async event =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (event.target.value === "" || !viewer) return;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>$("places").disabled = true;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>await visitExample(</p>
+<p class="p1"><span class="Apple-converted-space">          </span>examples[Number(event.target.value)]</p>
+<p class="p1"><span class="Apple-converted-space">        </span>);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>} catch (error) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>console.error(error);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>status("前往地點失敗，請稍後重試。");</p>
+<p class="p1"><span class="Apple-converted-space">      </span>} finally {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>$("places").disabled = false;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>$("jiang").addEventListener("click", () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>showLesson({</p>
+<p class="p1"><span class="Apple-converted-space">        </span>word: "江",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "比較學習：長江（不位於香港）"</p>
+<p class="p1"><span class="Apple-converted-space">      </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>$("close").addEventListener("click", () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>$("card").hidden = true;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>if ("speechSynthesis" in window) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>window.speechSynthesis.cancel();</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>$("speak").addEventListener("click", speakLesson);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>$("file").addEventListener("change", event =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const file = event.target.files[0];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (file &amp;&amp; viewer) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>importGeoJSON(file);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>init();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
