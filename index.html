@@ -746,11 +746,13 @@
             startTimer();
 
             // 字卡由詞語逐詞展開（每詞 2 字），保證每張卡都能配對；多音字按所屬詞語定音
+            // 每張卡綁定所屬詞語（word / wordId），配對時僅接受同一詞語的兩張卡，
+            // 避免困難難度下字元重複時因任意配對造成死鎖（剩餘卡片無法成詞）。
             const cardsSpec = [];
-            words.forEach(word => {
+            words.forEach((word, wi) => {
                 [...word].forEach(ch => {
                     const py = (WORD_READING[word] && WORD_READING[word][ch]) || PINYIN[ch] || '';
-                    cardsSpec.push({ ch, py });
+                    cardsSpec.push({ ch, py, word, wordId: wi });
                 });
             });
             shuffle(cardsSpec).forEach((spec, index) => {
@@ -758,6 +760,8 @@
                 card.classList.add('card');
                 card.dataset.char = spec.ch;
                 card.dataset.index = index;
+                card.dataset.word = spec.word;
+                card.dataset.wordId = spec.wordId;
                 card.innerHTML = '<span class="py">' + spec.py + '</span><span class="char">' + spec.ch + '</span>';
                 card.addEventListener('click', () => selectCard(card));
                 board.appendChild(card);
@@ -807,7 +811,11 @@
             const word = c1.dataset.char + c2.dataset.char;
             const total = sessionLevels[currentLevel].length;
 
-            if (dictionary.has(word) || isReasonable(word)) {
+            // 僅接受兩張卡來自同一詞語（wordId 相同）且順序正確，
+            // 否則困難難度下共用字元可能被任意配對而導致死鎖。
+            const isCorrectPair = c1.dataset.wordId === c2.dataset.wordId && c1.dataset.word === word;
+
+            if (isCorrectPair || isReasonable(word)) {
                 // 成功配對：立刻移除 selected 並加上 matched
                 c1.classList.remove('selected');
                 c2.classList.remove('selected');
@@ -818,6 +826,7 @@
                 scoreEl.innerText = '得分：' + score + ' / ' + total;
 
                 if (score === total) {
+                    stopTimer();   // 通關後停止計時，避免計時器在完成畫面持續跳動
                     if (currentLevel < sessionLevels.length - 1) {
                         messageEl.innerText = '第 ' + (currentLevel + 1) + ' 關完成！';
                         btnNext.classList.add('show');
@@ -868,8 +877,10 @@
             for (const word of dictionary) {
                 if (matchedWords.has(word)) continue;
                 const a = word[0], b = word[1];
-                const ca = unmatched.find(c => c.dataset.char === a);
-                const cb = unmatched.find(c => c.dataset.char === b && c !== ca);
+                // 找出同一詞語實例（wordId 相同）的兩張未配對卡，避免提示到錯誤組合
+                const wordCards = unmatched.filter(c => c.dataset.word === word);
+                const ca = wordCards.find(c => c.dataset.char === a);
+                const cb = wordCards.find(c => c.dataset.char === b && c !== ca);
                 if (ca && cb) {
                     hintsLeft--;
                     updateHintBtn();

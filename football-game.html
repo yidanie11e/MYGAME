@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>拼音足球射門大挑戰</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            margin: 0;
+            padding: 0;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #1a0a2e;
+            font-family: "Press Start 2P", "Microsoft JhengHei", monospace;
+        }
+        #gameContainer {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 540px;
+            max-height: 960px;
+            margin: 0 auto;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+            border: 4px solid #2a1a0a;
+        }
+        canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
+            image-rendering: pixelated;
+        }
+
+        /* ===== 像素風 UI 元素 ===== */
+        .top-ui {
+            position: absolute;
+            top: 12px; left: 0; width: 100%;
+            padding: 0 16px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 10;
+        }
+        .btn-back {
+            background: #3a2a1a;
+            color: #ffd700;
+            border: 3px solid #ffd700;
+            padding: 8px 16px;
+            border-radius: 0;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            font-family: "Press Start 2P", monospace;
+            box-shadow: 3px 3px 0 #1a0a00;
+            transition: all 0.1s;
+        }
+        .btn-back:active { transform: translate(3px, 3px); box-shadow: 0 0 0 #1a0a00; }
+        .timer-box {
+            background: #1a0a3a;
+            color: #00e5ff;
+            padding: 8px 16px;
+            border-radius: 0;
+            font-weight: bold;
+            font-size: 14px;
+            border: 3px solid #00e5ff;
+            min-width: 90px;
+            text-align: center;
+            font-family: "Press Start 2P", monospace;
+            box-shadow: 3px 3px 0 #001a33;
+        }
+        .bottom-ui {
+            position: absolute;
+            bottom: 16px; left: 0; width: 100%;
+            padding: 0 20px;
+            display: flex; justify-content: flex-end; align-items: center;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .score-box {
+            background: #2a1a0a;
+            color: #ffd700;
+            padding: 8px 16px;
+            border-radius: 0;
+            font-size: 14px;
+            font-weight: bold;
+            border: 3px solid #ffd700;
+            font-family: "Press Start 2P", monospace;
+            box-shadow: 3px 3px 0 #1a0a00;
+        }
+        .pinyin-display {
+            position: absolute;
+            top: 64px; left: 50%;
+            transform: translateX(-50%);
+            background: #fff8dc;
+            padding: 10px 36px;
+            border-radius: 0;
+            border: 4px solid #8b4513;
+            z-index: 5;
+            text-align: center;
+            box-shadow: 4px 4px 0 #1a0a00, inset -4px -4px 0 rgba(0,0,0,0.1);
+        }
+        .pinyin-text {
+            font-size: 32px;
+            font-weight: bold;
+            color: #8b0000;
+            letter-spacing: 3px;
+            font-family: "Press Start 2P", monospace;
+            text-shadow: 2px 2px 0 #ffd700;
+        }
+        .overlay-msg {
+            position: absolute;
+            top: 40%; left: 50%;
+            transform: translate(-50%, -50%) scale(0) rotate(-10deg);
+            z-index: 20;
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            pointer-events: none;
+            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            white-space: nowrap;
+            font-family: "Press Start 2P", monospace;
+            text-shadow: 3px 3px 0 #1a0a00;
+        }
+        .overlay-msg.show { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+        .msg-correct { color: #00e676; }
+        .msg-wrong { color: #ff3333; }
+        .combo-display {
+            position: absolute;
+            top: 128px; right: 16px;
+            z-index: 8;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            transform: scale(0.5);
+        }
+        .combo-display.show { opacity: 1; transform: scale(1); }
+        .combo-text {
+            font-size: 14px;
+            font-weight: bold;
+            color: #ff8800;
+            text-shadow: 2px 2px 0 #1a0a00;
+            font-family: "Press Start 2P", monospace;
+            background: #1a0a2e;
+            padding: 6px 12px;
+            border: 3px solid #ff8800;
+            box-shadow: 3px 3px 0 #1a0a00;
+        }
+        .screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, #1a0a3e 0%, #2a1a5e 30%, #4a2a1e 60%, #2a1a0a 100%);
+            z-index: 100;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            color: white; padding: 24px; text-align: center;
+        }
+        .screen h1 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #ffd700;
+            text-shadow: 4px 4px 0 #1a0a00, 8px 8px 0 rgba(0,0,0,0.3);
+            font-family: "Press Start 2P", monospace;
+            letter-spacing: 3px;
+            line-height: 1.5;
+        }
+        .screen p {
+            font-size: 14px;
+            margin-bottom: 28px;
+            color: #ccc;
+            max-width: 85%;
+            line-height: 1.8;
+            font-family: "Microsoft JhengHei", sans-serif;
+        }
+        .btn-start {
+            background: #2d8c3e;
+            color: #fff;
+            border: 4px solid #fff;
+            padding: 14px 40px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 0;
+            cursor: pointer;
+            box-shadow: 5px 5px 0 #0d4515, inset -4px -4px 0 rgba(0,0,0,0.2), inset 4px 4px 0 rgba(255,255,255,0.2);
+            transition: all 0.1s;
+            font-family: "Press Start 2P", monospace;
+            letter-spacing: 2px;
+        }
+        .btn-start:active { transform: translate(5px, 5px); box-shadow: 0 0 0 #0d4515; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div id="gameContainer">
+    <div class="top-ui">
+        <button class="btn-back" onclick="resetToMenu()">BACK</button>
+        <div class="timer-box" id="timer">03:00</div>
+    </div>
+    <div class="pinyin-display" id="pinyinBox">
+        <div class="pinyin-text" id="pinyinText">yǔ</div>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+    <div class="overlay-msg msg-correct" id="msgCorrect">GOAL!</div>
+    <div class="overlay-msg msg-wrong" id="msgWrong">MISS!</div>
+    <div class="combo-display" id="comboDisplay"><span class="combo-text" id="comboText"></span></div>
+    <div class="bottom-ui">
+        <div class="score-box">SCORE <span id="scoreText">0</span></div>
+    </div>
+    <div class="screen" id="startScreen">
+        <h1>PINYIN<br>FOOTBALL</h1>
+        <p>屏幕上方顯示漢語拼音，<br>按住足球向<b style="color:#ffd700">正確漢字的球門</b>方向<br>快速滑動射門！<br><br>連續答對可獲得連擊獎勵 🎯</p>
+        <button class="btn-start" onclick="startGame()">START</button>
+    </div>
+    <div class="screen hidden" id="endScreen">
+        <h1 id="endTitle">GAME OVER</h1>
+        <p id="endStatus" style="font-size: 16px; color: #ffd700; font-family: Microsoft JhengHei, sans-serif;"></p>
+        <button class="btn-start" onclick="startGame()">RETRY</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+
+    // ===== 香港小學生常用字題庫 =====
+    // 規則：正確字的拼音必須與干擾字的拼音完全不同
+    // 這樣玩家才能根據拼音唯一確定正確答案
+    const questionBank = [
+        // 數字
+        { pinyin: 'yī', correct: '一', fakes: ['二', '七'] },     // 一(yī) vs 二(èr) 七(qī)
+        { pinyin: 'èr', correct: '二', fakes: ['一', '五'] },     // 二(èr) vs 一(yī) 五(wǔ)
+        { pinyin: 'sān', correct: '三', fakes: ['八', '十'] },    // 三(sān) vs 八(bā) 十(shí)
+        { pinyin: 'sì', correct: '四', fakes: ['五', '十'] },     // 四(sì) vs 五(wǔ) 十(shí)
+        { pinyin: 'wǔ', correct: '五', fakes: ['四', '八'] },     // 五(wǔ) vs 四(sì) 八(bā)
+        { pinyin: 'liù', correct: '六', fakes: ['九', '七'] },    // 六(liù) vs 九(jiǔ) 七(qī)
+        { pinyin: 'qī', correct: '七', fakes: ['六', '一'] },    // 七(qī) vs 六(liù) 一(yī)
+        { pinyin: 'bā', correct: '八', fakes: ['三', '六'] },     // 八(bā) vs 三(sān) 六(liù)
+        { pinyin: 'jiǔ', correct: '九', fakes: ['五', '二'] },    // 九(jiǔ) vs 五(wǔ) 二(èr)
+        { pinyin: 'shí', correct: '十', fakes: ['四', '三'] },    // 十(shí) vs 四(sì) 三(sān)
+        // 自然
+        { pinyin: 'rì', correct: '日', fakes: ['月', '土'] },      // 日(rì) vs 月(yuè) 土(tǔ)
+        { pinyin: 'yuè', correct: '月', fakes: ['日', '星'] },    // 月(yuè) vs 日(rì) 星(xīng)
+        { pinyin: 'shuǐ', correct: '水', fakes: ['火', '土'] },    // 水(shuǐ) vs 火(huǒ) 土(tǔ)
+        { pinyin: 'huǒ', correct: '火', fakes: ['水', '木'] },     // 火(huǒ) vs 水(shuǐ) 木(mù)
+        { pinyin: 'mù', correct: '木', fakes: ['火', '金'] },      // 木(mù) vs 火(huǒ) 金(jīn)
+        { pinyin: 'tǔ', correct: '土', fakes: ['水', '日'] },      // 土(tǔ) vs 水(shuǐ) 日(rì)
+        { pinyin: 'jīn', correct: '金', fakes: ['木', '石'] },     // 金(jīn) vs 木(mù) 石(shí)
+        { pinyin: 'shí', correct: '石', fakes: ['金', '土'] },     // 石(shí) vs 金(jīn) 土(tǔ)
+        { pinyin: 'shān', correct: '山', fakes: ['水', '田'] },    // 山(shān) vs 水(shuǐ) 田(tián)
+        { pinyin: 'tián', correct: '田', fakes: ['山', '土'] },    // 田(tián) vs 山(shān) 土(tǔ)
+        { pinyin: 'fēng', correct: '風', fakes: ['雲', '雨'] },   // 風(fēng) vs 雲(yún) 雨(yǔ)
+        { pinyin: 'yún', correct: '雲', fakes: ['風', '雪'] },     // 雲(yún) vs 風(fēng) 雪(xuě)
+        { pinyin: 'yǔ', correct: '雨', fakes: ['風', '雲'] },     // 雨(yǔ) vs 風(fēng) 雲(yún)
+        { pinyin: 'xuě', correct: '雪', fakes: ['雨', '風'] },    // 雪(xuě) vs 雨(yǔ) 風(fēng)
+        { pinyin: 'tiān', correct: '天', fakes: ['地', '人'] },    // 天(tiān) vs 地(dì) 人(rén)
+        { pinyin: 'dì', correct: '地', fakes: ['天', '人'] },      // 地(dì) vs 天(tiān) 人(rén)
+        // 方位
+        { pinyin: 'shàng', correct: '上', fakes: ['下', '中'] },  // 上(shàng) vs 下(xià) 中(zhōng)
+        { pinyin: 'xià', correct: '下', fakes: ['上', '中'] },     // 下(xià) vs 上(shàng) 中(zhōng)
+        { pinyin: 'zuǒ', correct: '左', fakes: ['右', '中'] },    // 左(zuǒ) vs 右(yòu) 中(zhōng)
+        { pinyin: 'yòu', correct: '右', fakes: ['左', '中'] },    // 右(yòu) vs 左(zuǒ) 中(zhōng)
+        { pinyin: 'zhōng', correct: '中', fakes: ['上', '下'] },  // 中(zhōng) vs 上(shàng) 下(xià)
+        { pinyin: 'qián', correct: '前', fakes: ['後', '左'] },   // 前(qián) vs 後(hòu) 左(zuǒ)
+        { pinyin: 'hòu', correct: '後', fakes: ['前', '右'] },    // 後(hòu) vs 前(qián) 右(yòu)
+        // 人物
+        { pinyin: 'rén', correct: '人', fakes: ['天', '大'] },    // 人(rén) vs 天(tiān) 大(dà)
+        { pinyin: 'dà', correct: '大', fakes: ['人', '小'] },     // 大(dà) vs 人(rén) 小(xiǎo)
+        { pinyin: 'xiǎo', correct: '小', fakes: ['大', '人'] },   // 小(xiǎo) vs 大(dà) 人(rén)
+        { pinyin: 'nán', correct: '男', fakes: ['女', '子'] },    // 男(nán) vs 女(nǚ) 子(zǐ)
+        { pinyin: 'nǚ', correct: '女', fakes: ['男', '人'] },     // 女(nǚ) vs 男(nán) 人(rén)
+        { pinyin: 'zǐ', correct: '子', fakes: ['女', '男'] },     // 子(zǐ) vs 女(nǚ) 男(nán)
+        { pinyin: 'fù', correct: '父', fakes: ['母', '子'] },    // 父(fù) vs 母(mǔ) 子(zǐ)
+        { pinyin: 'mǔ', correct: '母', fakes: ['父', '女'] },     // 母(mǔ) vs 父(fù) 女(nǚ)
+        { pinyin: 'kǒu', correct: '口', fakes: ['手', '目'] },    // 口(kǒu) vs 手(shǒu) 目(mù)
+        { pinyin: 'shǒu', correct: '手', fakes: ['口', '足'] },   // 手(shǒu) vs 口(kǒu) 足(zú)
+        { pinyin: 'mù', correct: '目', fakes: ['口', '耳'] },     // 目(mù) vs 口(kǒu) 耳(ěr)
+        { pinyin: 'ěr', correct: '耳', fakes: ['目', '口'] },    // 耳(ěr) vs 目(mù) 口(kǒu)
+        { pinyin: 'zú', correct: '足', fakes: ['手', '口'] },     // 足(zú) vs 手(shǒu) 口(kǒu)
+        // 動植物
+        { pinyin: 'māo', correct: '貓', fakes: ['狗', '鳥'] },   // 貓(māo) vs 狗(gǒu) 鳥(niǎo)
+        { pinyin: 'gǒu', correct: '狗', fakes: ['貓', '馬'] },   // 狗(gǒu) vs 貓(māo) 馬(mǎ)
+        { pinyin: 'mǎ', correct: '馬', fakes: ['牛', '羊'] },    // 馬(mǎ) vs 牛(niú) 羊(yáng)
+        { pinyin: 'niú', correct: '牛', fakes: ['馬', '羊'] },   // 牛(niú) vs 馬(mǎ) 羊(yáng)
+        { pinyin: 'yáng', correct: '羊', fakes: ['牛', '馬'] },  // 羊(yáng) vs 牛(niú) 馬(mǎ)
+        { pinyin: 'yú', correct: '魚', fakes: ['鳥', '蟲'] },     // 魚(yú) vs 鳥(niǎo) 蟲(chóng)
+        { pinyin: 'niǎo', correct: '鳥', fakes: ['魚', '蟲'] },   // 鳥(niǎo) vs 魚(yú) 蟲(chóng)
+        { pinyin: 'chóng', correct: '蟲', fakes: ['鳥', '魚'] },  // 蟲(chóng) vs 鳥(niǎo) 魚(yú)
+        { pinyin: 'huā', correct: '花', fakes: ['草', '木'] },   // 花(huā) vs 草(cǎo) 木(mù)
+        { pinyin: 'cǎo', correct: '草', fakes: ['花', '木'] },   // 草(cǎo) vs 花(huā) 木(mù)
+        { pinyin: 'shù', correct: '樹', fakes: ['花', '草'] },   // 樹(shù) vs 花(huā) 草(cǎo)
+        // 顏色
+        { pinyin: 'hóng', correct: '紅', fakes: ['黃', '藍'] },  // 紅(hóng) vs 黃(huáng) 藍(lán)
+        { pinyin: 'huáng', correct: '黃', fakes: ['紅', '綠'] }, // 黃(huáng) vs 紅(hóng) 綠(lǜ)
+        { pinyin: 'lán', correct: '藍', fakes: ['紅', '白'] },   // 藍(lán) vs 紅(hóng) 白(bái)
+        { pinyin: 'lǜ', correct: '綠', fakes: ['黃', '黑'] },    // 綠(lǜ) vs 黃(huáng) 黑(hēi)
+        { pinyin: 'bái', correct: '白', fakes: ['黑', '藍'] },   // 白(bái) vs 黑(hēi) 藍(lán)
+        { pinyin: 'hēi', correct: '黑', fakes: ['白', '紅'] },   // 黑(hēi) vs 白(bái) 紅(hóng)
+        // 動作
+        { pinyin: 'zǒu', correct: '走', fakes: ['跑', '飛'] },   // 走(zǒu) vs 跑(pǎo) 飛(fēi)
+        { pinyin: 'pǎo', correct: '跑', fakes: ['走', '跳'] },   // 跑(pǎo) vs 走(zǒu) 跳(tiào)
+        { pinyin: 'fēi', correct: '飛', fakes: ['走', '游'] },   // 飛(fēi) vs 走(zǒu) 游(yóu)
+        { pinyin: 'chī', correct: '吃', fakes: ['喝', '看'] },   // 吃(chī) vs 喝(hē) 看(kàn)
+        { pinyin: 'hē', correct: '喝', fakes: ['吃', '說'] },    // 喝(hē) vs 吃(chī) 說(shuō)
+        { pinyin: 'kàn', correct: '看', fakes: ['吃', '聽'] },   // 看(kàn) vs 吃(chī) 聽(tīng)
+        { pinyin: 'tīng', correct: '聽', fakes: ['看', '說'] },   // 聽(tīng) vs 看(kàn) 說(shuō)
+        { pinyin: 'shuō', correct: '說', fakes: ['聽', '讀'] },  // 說(shuō) vs 聽(tīng) 讀(dú)
+        // 學習
+        { pinyin: 'shū', correct: '書', fakes: ['筆', '字'] },   // 書(shū) vs 筆(bǐ) 字(zì)
+        { pinyin: 'bǐ', correct: '筆', fakes: ['書', '紙'] },   // 筆(bǐ) vs 書(shū) 紙(zhǐ)
+        { pinyin: 'zì', correct: '字', fakes: ['書', '筆'] },   // 字(zì) vs 書(shū) 筆(bǐ)
+        { pinyin: 'zhǐ', correct: '紙', fakes: ['筆', '書'] },   // 紙(zhǐ) vs 筆(bǐ) 書(shū)
+        { pinyin: 'dú', correct: '讀', fakes: ['寫', '學'] },   // 讀(dú) vs 寫(xiě) 學(xué)
+        { pinyin: 'xiě', correct: '寫', fakes: ['讀', '畫'] },   // 寫(xiě) vs 讀(dú) 畫(huà)
+        { pinyin: 'xué', correct: '學', fakes: ['讀', '寫'] },   // 學(xué) vs 讀(dú) 寫(xiě)
+        // 食物
+        { pinyin: 'fàn', correct: '飯', fakes: ['菜', '湯'] },   // 飯(fàn) vs 菜(cài) 湯(tāng)
+        { pinyin: 'cài', correct: '菜', fakes: ['飯', '湯'] },   // 菜(cài) vs 飯(fàn) 湯(tāng)
+        { pinyin: 'tāng', correct: '湯', fakes: ['飯', '菜'] },  // 湯(tāng) vs 飯(fàn) 菜(cài)
+        { pinyin: 'chá', correct: '茶', fakes: ['水', '飯'] },   // 茶(chá) vs 水(shuǐ) 飯(fàn)
+        { pinyin: 'guǒ', correct: '果', fakes: ['花', '菜'] },  // 果(guǒ) vs 花(huā) 菜(cài)
+        // 時間
+        { pinyin: 'nián', correct: '年', fakes: ['月', '日'] },  // 年(nián) vs 月(yuè) 日(rì)
+        { pinyin: 'jīn', correct: '今', fakes: ['明', '天'] },   // 今(jīn) vs 明(míng) 天(tiān)
+        { pinyin: 'míng', correct: '明', fakes: ['今', '天'] },  // 明(míng) vs 今(jīn) 天(tiān)
+        { pinyin: 'zǎo', correct: '早', fakes: ['晚', '日'] },  // 早(zǎo) vs 晚(wǎn) 日(rì)
+        { pinyin: 'wǎn', correct: '晚', fakes: ['早', '夜'] },  // 晚(wǎn) vs 早(zǎo) 夜(yè)
+    ];
+
+    // ===== 去重 =====
+    const uniqueBank = [];
+    const seen = new Set();
+    for (const q of questionBank) {
+        const key = q.pinyin + '|' + q.correct;
+        if (!seen.has(key)) { seen.add(key); uniqueBank.push(q); }
+    }
+
+    let gameState = {
+        score: 0, lives: 3, timeLeft: 180,
+        timerInterval: null, currentQuestion: null,
+        doors: [], isPlaying: false,
+        combo: 0, maxCombo: 0, correctCount: 0
+    };
+
+    let ball = {
+        startX: 0, startY: 0, x: 0, y: 0,
+        radius: 24, vx: 0, vy: 0,
+        isKicked: false, scale: 1,
+        rotation: 0, wrongXGoalIdx: -1, trail: []
+    };
+    let touchStart = { x: 0, y: 0, time: 0 };
+    let isTrackingTouch = false;
+    let animationId = null;
+    let particles = [];
+    let pixelClouds = [];
+    let pixelStars = [];
+
+    function resizeCanvas() {
+        const container = document.getElementById('gameContainer');
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+        ball.startX = canvas.width / 2;
+        ball.startY = canvas.height * 0.82;
+        if (!ball.isKicked) resetBall();
+        setupDoorsPosition();
+        initPixelDecor();
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    function initPixelDecor() {
+        pixelClouds = [];
+        for (let i = 0; i < 4; i++) {
+            pixelClouds.push({
+                x: Math.random() * canvas.width,
+                y: 20 + Math.random() * canvas.height * 0.22,
+                w: 40 + Math.random() * 50,
+                speed: 0.15 + Math.random() * 0.25
+            });
+        }
+        pixelStars = [];
+        for (let i = 0; i < 15; i++) {
+            pixelStars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height * 0.3,
+                blink: Math.random() * Math.PI * 2
+            });
+        }
+    }
+
+    function setupDoorsPosition() {
+        const goalWidth = canvas.width * 0.25;
+        const goalHeight = canvas.height * 0.15;
+        const yPos = canvas.height * 0.27;
+        const xPositions = [canvas.width * 0.2, canvas.width * 0.5, canvas.width * 0.8];
+        gameState.doors = xPositions.map((x, index) => ({
+            index, x: x - goalWidth / 2, y: yPos,
+            width: goalWidth, height: goalHeight,
+            char: '', isCorrect: false, glow: 0
+        }));
+        if (gameState.currentQuestion) assignCharsToDoors();
+    }
+
+    function assignCharsToDoors() {
+        const q = gameState.currentQuestion;
+        let chars = [q.correct, ...q.fakes];
+        chars.sort(() => Math.random() - 0.5);
+        gameState.doors.forEach((door, i) => {
+            door.char = chars[i];
+            door.isCorrect = (chars[i] === q.correct);
+            door.glow = 0;
+        });
+    }
+
+    function nextQuestion() {
+        let rand;
+        let attempts = 0;
+        do {
+            rand = uniqueBank[Math.floor(Math.random() * uniqueBank.length)];
+            attempts++;
+        } while (gameState.currentQuestion && rand.pinyin === gameState.currentQuestion.pinyin && attempts < 10);
+        gameState.currentQuestion = rand;
+        document.getElementById('pinyinText').innerText = rand.pinyin;
+        assignCharsToDoors();
+        resetBall();
+    }
+
+    function resetBall() {
+        ball.x = ball.startX; ball.y = ball.startY;
+        ball.vx = 0; ball.vy = 0;
+        ball.scale = 1; ball.isKicked = false;
+        ball.rotation = 0; ball.wrongXGoalIdx = -1;
+        ball.trail = [];
+    }
+
+    function startGame() {
+        document.getElementById('startScreen').classList.add('hidden');
+        document.getElementById('endScreen').classList.add('hidden');
+        gameState.score = 0; gameState.lives = 3; gameState.timeLeft = 180;
+        gameState.combo = 0; gameState.maxCombo = 0; gameState.correctCount = 0;
+        gameState.isPlaying = true;
+        updateScore(); updateHearts(); updateTimerDisplay(); updateCombo();
+        resizeCanvas(); nextQuestion(); startTimer();
+        if (animationId) cancelAnimationFrame(animationId);
+        gameLoop();
+    }
+
+    function startTimer() {
+        if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+        gameState.timerInterval = setInterval(() => {
+            gameState.timeLeft--;
+            updateTimerDisplay();
+            if (gameState.timeLeft <= 0) endGame(false);
+        }, 1000);
+    }
+    function updateTimerDisplay() {
+        const m = String(Math.floor(gameState.timeLeft / 60)).padStart(2, '0');
+        const s = String(gameState.timeLeft % 60).padStart(2, '0');
+        document.getElementById('timer').innerText = m + ':' + s;
+    }
+    function updateScore() { document.getElementById('scoreText').innerText = gameState.score; }
+    function updateHearts() { /* 紅心圖示已移除，生命數僅用於後台判斷結束 */ }
+    function updateCombo() {
+        const el = document.getElementById('comboDisplay');
+        if (gameState.combo >= 2) {
+            document.getElementById('comboText').innerText = 'COMBO x' + gameState.combo;
+            el.classList.add('show');
+        } else { el.classList.remove('show'); }
+    }
+    function showMsg(id, text, duration) {
+        const el = document.getElementById(id);
+        el.innerText = text;
+        el.classList.add('show');
+        setTimeout(() => el.classList.remove('show'), duration || 700);
+    }
+
+    // ===== 粒子 =====
+    function spawnParticles(x, y, color, count) {
+        for (let i = 0; i < count; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 5 + 2;
+            particles.push({
+                x, y, vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed - 2,
+                life: 1, color, size: Math.random() * 4 + 3
+            });
+        }
+    }
+    function updateParticles() {
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.life -= 0.03;
+            if (p.life <= 0) particles.splice(i, 1);
+        }
+    }
+    function drawParticles() {
+        for (const p of particles) {
+            ctx.save();
+            ctx.globalAlpha = p.life;
+            ctx.fillStyle = p.color;
+            const sz = Math.round(p.size);
+            ctx.fillRect(Math.round(p.x - sz/2), Math.round(p.y - sz/2), sz, sz);
+            ctx.restore();
+        }
+    }
+
+    // ===== 觸控 =====
+    function getEventPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const touch = e.touches ? e.touches[0] : e;
+        return { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+    }
+    canvas.addEventListener('mousedown', handleStart);
+    canvas.addEventListener('mousemove', handleMove);
+    canvas.addEventListener('mouseup', handleEnd);
+    canvas.addEventListener('touchstart', e => { e.preventDefault(); handleStart(e); }, { passive: false });
+    canvas.addEventListener('touchmove', e => { e.preventDefault(); handleMove(e); }, { passive: false });
+    canvas.addEventListener('touchend', e => { e.preventDefault(); handleEnd(e); }, { passive: false });
+
+    function handleStart(e) {
+        if (!gameState.isPlaying || ball.isKicked) return;
+        const pos = getEventPos(e);
+        const dx = pos.x - ball.x, dy = pos.y - ball.y;
+        if (Math.sqrt(dx * dx + dy * dy) < ball.radius * 2.5) {
+            isTrackingTouch = true;
+            touchStart.x = pos.x; touchStart.y = pos.y;
+            touchStart.time = Date.now();
+        }
+    }
+    function handleMove(e) {
+        if (!isTrackingTouch) return;
+        const pos = getEventPos(e);
+        ball.x = pos.x; ball.y = pos.y;
+    }
+    function handleEnd(e) {
+        if (!isTrackingTouch) return;
+        isTrackingTouch = false;
+        let pos;
+        if (e.changedTouches) {
+            const rect = canvas.getBoundingClientRect();
+            pos = { x: e.changedTouches[0].clientX - rect.left, y: e.changedTouches[0].clientY - rect.top };
+        } else { pos = getEventPos(e); }
+        const dx = pos.x - touchStart.x, dy = pos.y - touchStart.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const elapsed = Date.now() - touchStart.time;
+        if (dist > 25 && elapsed < 800) {
+            const speed = dist / elapsed * 16;
+            const angle = Math.atan2(dy, dx);
+            ball.vx = Math.cos(angle) * speed;
+            ball.vy = Math.sin(angle) * speed;
+            ball.isKicked = true;
+        } else { resetBall(); }
+    }
+
+    // ===== 遊戲循環 =====
+    function gameLoop() { update(); render(); animationId = requestAnimationFrame(gameLoop); }
+
+    function update() {
+        if (!gameState.isPlaying) return;
+        for (const s of pixelStars) s.blink += 0.03;
+        for (const c of pixelClouds) {
+            c.x -= c.speed;
+            if (c.x + c.w < 0) c.x = canvas.width;
+        }
+        for (const d of gameState.doors) if (d.glow > 0) d.glow -= 0.02;
+        updateParticles();
+
+        if (ball.isKicked) {
+            ball.trail.push({ x: ball.x, y: ball.y, life: 1 });
+            if (ball.trail.length > 12) ball.trail.shift();
+            for (const t of ball.trail) t.life -= 0.08;
+            ball.x += ball.vx; ball.y += ball.vy;
+            ball.vy += 0.4; ball.rotation += 0.08;
+            ball.scale = Math.max(0.5, ball.scale - 0.003);
+
+            for (const door of gameState.doors) {
+                if (ball.x > door.x && ball.x < door.x + door.width &&
+                    ball.y > door.y && ball.y < door.y + door.height) {
+                    if (door.isCorrect) {
+                        gameState.combo++;
+                        gameState.maxCombo = Math.max(gameState.maxCombo, gameState.combo);
+                        gameState.correctCount++;
+                        const bonus = Math.floor(gameState.combo / 3) * 5;
+                        const points = 10 + bonus;
+                        gameState.score += points;
+                        updateScore(); updateCombo();
+                        door.glow = 1;
+                        showMsg('msgCorrect', 'GOAL! +' + points, 600);
+                        spawnParticles(ball.x, ball.y, '#00e676', 15);
+                        spawnParticles(ball.x, ball.y, '#ffd700', 8);
+                    } else {
+                        gameState.lives--; gameState.combo = 0;
+                        updateHearts(); updateCombo();
+                        ball.wrongXGoalIdx = door.index;
+                        showMsg('msgWrong', 'MISS!', 600);
+                        spawnParticles(ball.x, ball.y, '#ff3333', 12);
+                        if (gameState.lives <= 0) { endGame(false); return; }
+                    }
+                    setTimeout(() => { if (gameState.isPlaying) nextQuestion(); }, 500);
+                    return;
+                }
+            }
+            if (ball.x < -50 || ball.x > canvas.width + 50 || ball.y > canvas.height + 50 || ball.y < -100) {
+                gameState.combo = 0; updateCombo(); resetBall();
+            }
+        }
+    }
+
+    function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawPixelSky();
+        drawPixelClouds();
+        drawPixelStars();
+        drawPixelGrass();
+        drawPixelField();
+        for (const door of gameState.doors) drawPixelDoor(door);
+        drawBallTrail();
+        drawPixelBall();
+        drawParticles();
+    }
+
+    // ===== Pixel Art 背景 =====
+    function drawPixelSky() {
+        // 傍晚天空：從深紫到橙紅漸層
+        const skyH = canvas.height * 0.42;
+        const bands = [
+            { color: '#1a0a3e', h: 0.05 },
+            { color: '#2e1055', h: 0.08 },
+            { color: '#4a1e5e', h: 0.08 },
+            { color: '#7a2e5e', h: 0.06 },
+            { color: '#c44a3e', h: 0.06 },
+            { color: '#e87a3e', h: 0.05 },
+            { color: '#f5a050', h: 0.04 }
+        ];
+        let y = 0;
+        for (const b of bands) {
+            const bh = skyH * b.h * 2.5;
+            ctx.fillStyle = b.color;
+            ctx.fillRect(0, y, canvas.width, Math.ceil(bh) + 1);
+            y += bh;
+        }
+    }
+
+    function drawPixelClouds() {
+        for (const c of pixelClouds) {
+            const px = Math.round(c.x), py = Math.round(c.y);
+            const w = Math.round(c.w);
+            // 雲體
+            ctx.fillStyle = '#e8c0a0';
+            ctx.fillRect(px, py, w, 8);
+            ctx.fillRect(px + 6, py - 6, w - 12, 6);
+            ctx.fillRect(px + 14, py - 12, w - 28, 6);
+            // 高光
+            ctx.fillStyle = '#f5d8b0';
+            ctx.fillRect(px + 8, py - 4, w - 16, 4);
+            ctx.fillRect(px + 16, py - 10, w - 32, 4);
+        }
+    }
+
+    function drawPixelStars() {
+        for (const s of pixelStars) {
+            const alpha = 0.4 + Math.sin(s.blink) * 0.4;
+            if (alpha > 0.3) {
+                ctx.fillStyle = 'rgba(255,255,220,' + alpha + ')';
+                ctx.fillRect(s.x, s.y, 3, 3);
+            }
+        }
+    }
+
+    function drawPixelGrass() {
+        const grassY = canvas.height * 0.42;
+        // 草地漸層帶
+        const bands = [
+            { color: '#3a9e3e', h: 0.06 },
+            { color: '#2d8c3e', h: 0.08 },
+            { color: '#1e7a2e', h: 0.12 },
+            { color: '#0d5a1e', h: 0.32 }
+        ];
+        let y = grassY;
+        const grassH = canvas.height - grassY;
+        for (const b of bands) {
+            const bh = grassH * b.h;
+            ctx.fillStyle = b.color;
+            ctx.fillRect(0, y, canvas.width, Math.ceil(bh) + 1);
+            y += bh;
+        }
+        // 草地小花點綴
+        ctx.fillStyle = '#ff66cc';
+        for (let i = 0; i < 8; i++) {
+            const fx = (i * 73 + 17) % canvas.width;
+            const fy = grassY + 30 + (i * 41) % (canvas.height * 0.3);
+            ctx.fillRect(fx, fy, 4, 4);
+            ctx.fillRect(fx - 4, fy + 2, 4, 4);
+            ctx.fillRect(fx + 4, fy + 2, 4, 4);
+        }
+        ctx.fillStyle = '#ffd700';
+        for (let i = 0; i < 6; i++) {
+            const fx = (i * 97 + 31) % canvas.width;
+            const fy = grassY + 50 + (i * 53) % (canvas.height * 0.25);
+            ctx.fillRect(fx, fy, 4, 4);
+            ctx.fillRect(fx - 4, fy + 2, 4, 4);
+            ctx.fillRect(fx + 4, fy + 2, 4, 4);
+            ctx.fillRect(fx, fy - 4, 4, 4);
+            ctx.fillRect(fx, fy + 4, 4, 4);
+        }
+    }
+
+    function drawPixelField() {
+        const grassY = canvas.height * 0.42;
+        // 條紋
+        ctx.fillStyle = 'rgba(255,255,255,0.04)';
+        for (let y = grassY + 20; y < canvas.height; y += 30) {
+            ctx.fillRect(0, y, canvas.width, 2);
+        }
+        // 中線
+        ctx.fillStyle = 'rgba(255,255,255,0.08)';
+        ctx.fillRect(canvas.width / 2 - 1, grassY, 2, canvas.height - grassY);
+        // 罰球區
+        ctx.fillStyle = 'rgba(255,255,255,0.06)';
+        const boxW = canvas.width * 0.6;
+        ctx.fillRect((canvas.width - boxW) / 2, grassY, 2, canvas.height * 0.13);
+        ctx.fillRect((canvas.width + boxW) / 2, grassY, 2, canvas.height * 0.13);
+        ctx.fillRect((canvas.width - boxW) / 2, grassY + canvas.height * 0.13 - 2, boxW, 2);
+    }
+
+    function drawPixelDoor(door) {
+        const { x, y, width, height, char, index, glow } = door;
+
+        // 正確光暈
+        if (glow > 0) {
+            ctx.save();
+            ctx.globalAlpha = glow * 0.5;
+            ctx.fillStyle = '#00e676';
+            ctx.fillRect(x - 8, y - 8, width + 16, height + 16);
+            ctx.restore();
+        }
+
+        // 球門框架（像素方塊）
+        const postW = 6;
+        ctx.fillStyle = '#f5f5f5';
+        // 左柱
+        ctx.fillRect(x, y, postW, height);
+        // 右柱
+        ctx.fillRect(x + width - postW, y, postW, height);
+        // 橫樑
+        ctx.fillRect(x, y, width, postW);
+        // 框架陰影
+        ctx.fillStyle = '#999';
+        ctx.fillRect(x + 2, y + 2, postW - 2, height - 2);
+        ctx.fillRect(x + width - postW + 2, y + 2, postW - 2, height - 2);
+
+        // 球門網
+        ctx.fillStyle = 'rgba(255,255,255,0.15)';
+        for (let i = x + postW + 6; i < x + width - postW; i += 8) {
+            ctx.fillRect(i, y + postW, 2, height - postW * 2);
+        }
+        for (let j = y + postW + 6; j < y + height; j += 8) {
+            ctx.fillRect(x + postW, j, width - postW * 2, 2);
+        }
+
+        // 漢字卡片
+        const cardX = Math.round(x + width / 2 - 30);
+        const cardY = Math.round(y + height / 2 - 24);
+        const cardW = 60, cardH = 48;
+        // 卡片背景
+        ctx.fillStyle = '#1a1a2e';
+        ctx.fillRect(cardX, cardY, cardW, cardH);
+        // 卡片邊框
+        ctx.fillStyle = '#ffd700';
+        ctx.fillRect(cardX, cardY, cardW, 3);
+        ctx.fillRect(cardX, cardY + cardH - 3, cardW, 3);
+        ctx.fillRect(cardX, cardY, 3, cardH);
+        ctx.fillRect(cardX + cardW - 3, cardY, 3, cardH);
+        // 高光
+        ctx.fillStyle = 'rgba(255,255,255,0.1)';
+        ctx.fillRect(cardX + 4, cardY + 4, cardW - 8, 3);
+
+        // 漢字
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 34px "Microsoft JhengHei", "PingFang TC", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(char, x + width / 2, y + height / 2);
+
+        // 答錯紅叉
+        if (ball.wrongXGoalIdx === index) {
+            ctx.fillStyle = '#ff3333';
+            const thick = 6;
+            // 畫對角線（用方塊近似）
+            const steps = Math.max(width, height) / 4;
+            for (let i = 0; i <= steps; i++) {
+                const t = i / steps;
+                const px = x + t * width;
+                const py = y + t * height;
+                ctx.fillRect(Math.round(px - thick/2), Math.round(py - thick/2), thick, thick);
+                const px2 = x + width - t * width;
+                ctx.fillRect(Math.round(px2 - thick/2), Math.round(py - thick/2), thick, thick);
+            }
+        }
+    }
+
+    function drawBallTrail() {
+        for (const t of ball.trail) {
+            if (t.life > 0) {
+                ctx.save();
+                ctx.globalAlpha = t.life * 0.4;
+                ctx.fillStyle = '#ffeb3b';
+                const sz = Math.round(ball.radius * t.life * 0.6);
+                ctx.fillRect(Math.round(t.x - sz/2), Math.round(t.y - sz/2), sz, sz);
+                ctx.restore();
+            }
+        }
+    }
+
+    function drawPixelBall() {
+        ctx.save();
+        ctx.translate(Math.round(ball.x), Math.round(ball.y));
+        ctx.scale(ball.scale, ball.scale);
+        const r = ball.radius;
+        // 陰影
+        ctx.fillStyle = 'rgba(0,0,0,0.2)';
+        ctx.fillRect(-r + 2, r, r * 2, 4);
+        // 球身（用方塊近似圓形）
+        ctx.fillStyle = '#ffffff';
+        for (let dy = -r; dy <= r; dy += 4) {
+            const halfW = Math.sqrt(r * r - dy * dy);
+            const w = Math.ceil(halfW / 4) * 4;
+            ctx.fillRect(-w, dy, w * 2, 4);
+        }
+        // 球身陰影
+        ctx.fillStyle = '#cccccc';
+        for (let dy = 2; dy <= r; dy += 4) {
+            const halfW = Math.sqrt(r * r - dy * dy);
+            const w = Math.ceil(halfW / 4) * 4;
+            ctx.fillRect(-w + 2, dy, w * 2 - 4, 4);
+        }
+        // 黑色五邊形花紋（中心）
+        ctx.fillStyle = '#1a1a2e';
+        const hexR = r * 0.35;
+        ctx.beginPath();
+        for (let i = 0; i < 5; i++) {
+            const a = (i / 5) * Math.PI * 2 - Math.PI / 2 + ball.rotation;
+            const px = Math.cos(a) * hexR;
+            const py = Math.sin(a) * hexR;
+            if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fill();
+        // 外圍花紋
+        for (let i = 0; i < 5; i++) {
+            const a = (i / 5) * Math.PI * 2 - Math.PI / 2 + ball.rotation;
+            const px = Math.cos(a) * r * 0.6;
+            const py = Math.sin(a) * r * 0.6;
+            ctx.fillRect(Math.round(px - 5), Math.round(py - 5), 10, 10);
+        }
+        // 高光
+        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        ctx.fillRect(-r * 0.5, -r * 0.5, 8, 8);
+        ctx.restore();
+    }
+
+    function endGame(won) {
+        gameState.isPlaying = false;
+        clearInterval(gameState.timerInterval);
+        if (animationId) cancelAnimationFrame(animationId);
+        const title = gameState.score >= 100 ? 'AMAZING!' : gameState.score >= 50 ? 'WELL DONE!' : 'GAME OVER';
+        document.getElementById('endTitle').innerText = title;
+        document.getElementById('endStatus').innerHTML =
+            'SCORE: <b style="color:#00e676">' + gameState.score + '</b><br>' +
+            'CORRECT: ' + gameState.correctCount + ' / MAX COMBO: x' + gameState.maxCombo;
+        document.getElementById('endScreen').classList.remove('hidden');
+    }
+
+    function resetToMenu() {
+        gameState.isPlaying = false;
+        clearInterval(gameState.timerInterval);
+        if (animationId) cancelAnimationFrame(animationId);
+        document.getElementById('endScreen').classList.add('hidden');
+        document.getElementById('startScreen').classList.remove('hidden');
+        gameState.score = 0; gameState.lives = 3; gameState.timeLeft = 180;
+        gameState.combo = 0; gameState.maxCombo = 0; gameState.correctCount = 0;
+        updateScore(); updateHearts(); updateTimerDisplay(); updateCombo();
+    }
+
+    resizeCanvas();
+</script>
+</body>
+</html>
