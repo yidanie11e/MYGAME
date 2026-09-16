@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>五行漢字大融合</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f4edd8;
+            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #game-container {
+            position: relative;
+            width: 450px;
+            height: 750px;
+            background: #fcf8eb;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border: 8px solid #8c6b4a;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        /* 開始介面 */
+        #start-screen {
+            background: linear-gradient(to bottom, #fcf8eb, #eadeca);
+        }
+        .game-title {
+            font-size: 42px;
+            color: #4a3319;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0px #fff;
+            letter-spacing: 2px;
+        }
+        .game-subtitle {
+            font-size: 18px;
+            color: #8c6b4a;
+            margin-bottom: 50px;
+        }
+        .btn {
+            padding: 15px 40px;
+            font-size: 22px;
+            background: #d9534f;
+            color: white;
+            border: 3px solid #4a3319;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #4a3319;
+            transition: all 0.1s;
+            font-weight: bold;
+        }
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #4a3319;
+        }
+        /* 遊戲主介面 */
+        #main-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        /* UI 元素 */
+        .hud-element {
+            position: absolute;
+            z-index: 5;
+            pointer-events: none;
+        }
+        #score-display {
+            top: 22px;
+            left: 64px;
+            font-size: 22px;
+            color: #4a3319;
+            font-weight: bold;
+        }
+        /* 返回按鈕（遊戲中與結束畫面可見，開始畫面隱藏） */
+        #back-btn {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            width: 40px;
+            height: 40px;
+            background: #8c6b4a;
+            border: 2px solid #4a3319;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 7;
+            padding: 0;
+            box-shadow: 0 4px 0 #4a3319;
+        }
+        #back-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #4a3319;
+        }
+        #back-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: #fcf8eb;
+        }
+        #best-score-container {
+            top: 20px;
+            right: 20px;
+            display: none;
+            align-items: center;
+            background: rgba(140, 107, 74, 0.15);
+            padding: 5px 12px;
+            border-radius: 15px;
+            border: 1px solid #8c6b4a;
+        }
+        .best-icon {
+            font-size: 16px;
+            margin-right: 5px;
+        }
+        #best-score-display {
+            font-size: 18px;
+            color: #8c6b4a;
+            font-weight: bold;
+        }
+        /* 音訊設定按鈕 */
+        #audio-toggle-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 45px;
+            height: 45px;
+            background: #8c6b4a;
+            border: 2px solid #4a3319;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 6;
+            box-shadow: 0 4px 0 #4a3319;
+        }
+        #audio-toggle-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #4a3319;
+        }
+        #audio-toggle-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: #fcf8eb;
+        }
+        /* 音訊設定彈窗 */
+        #audio-menu {
+            display: none;
+            position: absolute;
+            bottom: 75px;
+            left: 20px;
+            background: #fcf8eb;
+            border: 3px solid #4a3319;
+            border-radius: 12px;
+            padding: 15px;
+            z-index: 20;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            flex-direction: column;
+            gap: 12px;
+        }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 140px;
+            font-size: 16px;
+            color: #4a3319;
+            font-weight: bold;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 45px;
+            height: 24px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .2s;
+            border-radius: 24px;
+            border: 1px solid #4a3319;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px; width: 16px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .2s;
+            border-radius: 50%;
+            border: 1px solid #4a3319;
+        }
+        input:checked + .slider { background-color: #5cb85c; }
+        input:checked + .slider:before { transform: translateX(21px); }
+
+        /* 結束介面 */
+        #end-screen {
+            background: rgba(74, 51, 25, 0.85);
+            display: none;
+        }
+        .end-panel {
+            background: #fcf8eb;
+            border: 4px solid #4a3319;
+            border-radius: 16px;
+            padding: 30px;
+            width: 80%;
+            text-align: center;
+            box-shadow: 0 10px 0 #332210;
+        }
+        .end-title {
+            font-size: 32px;
+            color: #d9534f;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .score-box {
+            font-size: 24px;
+            color: #4a3319;
+            margin-bottom: 10px;
+        }
+        .new-record-tag {
+            color: #f0ad4e;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: none;
+            animation: pulse 1s infinite alternate;
+        }
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.08); }
+        }
+
+        /* ===== 開始介面：說明卡片 / 難度選擇 ===== */
+        #start-screen {
+            padding: 22px 18px;
+            gap: 16px;
+            overflow-y: auto;
+        }
+        .info-card {
+            width: 100%;
+            max-width: 384px;
+            background: rgba(252, 248, 235, 0.92);
+            border: 2px solid #8c6b4a;
+            border-radius: 12px;
+            padding: 14px 16px;
+            box-shadow: 0 4px 0 rgba(74, 51, 25, 0.25);
+        }
+        .info-title {
+            font-size: 17px;
+            font-weight: bold;
+            color: #4a3319;
+            text-align: center;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+        }
+        .info-list {
+            margin: 0;
+            padding-left: 18px;
+            font-size: 13px;
+            color: #5d4423;
+            line-height: 1.65;
+        }
+        .info-list b { color: #4a3319; }
+        .wuxing-order {
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #4a3319;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        .wuxing-order .arrow { color: #8c6b4a; margin: 0 2px; }
+        .el-wood  { color: #385723; }
+        .el-fire  { color: #c65911; }
+        .el-earth { color: #bf9000; }
+        .el-metal { color: #93731c; }
+        .el-water { color: #2f5597; }
+
+        .mode-tabs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 12px 0 10px;
+        }
+        .mode-tab {
+            padding: 7px 30px;
+            font-size: 15px;
+            font-weight: bold;
+            background: #eadfc8;
+            color: #8c6b4a;
+            border: 2px solid #8c6b4a;
+            border-radius: 18px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .mode-tab.active {
+            background: #d9534f;
+            color: #fff;
+            border-color: #4a3319;
+        }
+        .chain-preview {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            min-height: 30px;
+        }
+        .chain-chip {
+            font-size: 14px;
+            font-weight: bold;
+            padding: 2px 7px;
+            border-radius: 8px;
+            border: 1.5px solid;
+        }
+        .chain-arrow { font-size: 12px; color: #8c6b4a; }
+        .chain-arrow.cross {
+            color: #d9534f;
+            font-weight: bold;
+            font-size: 14px;
+            margin: 0 2px;
+        }
+        .chip-wood  { background: #e2f0d9; color: #243f16; border-color: #385723; }
+        .chip-fire  { background: #fce4d6; color: #843c0c; border-color: #c65911; }
+        .chip-earth { background: #fff2cc; color: #7f6000; border-color: #bf9000; }
+        .chip-metal { background: #f9e7b9; color: #93731c; border-color: #b79536; }
+        .chip-water { background: #ddebf7; color: #1f3864; border-color: #2f5597; }
+        #start-btn { margin-top: 2px; }
+
+        /* ===== 跨元素相生彈窗（淺底色） ===== */
+        #element-popup {
+            position: absolute;
+            top: 240px;
+            left: 0;
+            width: 100%;
+            display: none;
+            justify-content: center;
+            z-index: 8;
+            pointer-events: none;
+        }
+        #element-popup.show {
+            display: flex;
+            animation: epPop 1.5s ease forwards;
+        }
+        .ep-card {
+            background: #fffdf7;
+            border: 3px solid #4a3319;
+            border-radius: 14px;
+            padding: 10px 30px;
+            text-align: center;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+        }
+        #ep-title {
+            font-size: 30px;
+            font-weight: bold;
+            letter-spacing: 4px;
+            line-height: 1.2;
+        }
+        #ep-sub {
+            font-size: 12px;
+            color: #8c6b4a;
+            margin-top: 3px;
+            letter-spacing: 1px;
+        }
+        @keyframes epPop {
+            0%   { opacity: 0; transform: translateY(12px) scale(0.7); }
+            12%  { opacity: 1; transform: translateY(0) scale(1.08); }
+            22%  { transform: scale(1); }
+            78%  { opacity: 1; }
+            100% { opacity: 0; transform: translateY(-16px) scale(1); }
+        }
+
+        /* ===== 結束介面補充 ===== */
+        .best-box {
+            font-size: 16px;
+            color: #8c6b4a;
+            margin-bottom: 16px;
+        }
+        .end-btns {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-secondary {
+            background: #8c6b4a;
+            box-shadow: 0 6px 0 #4a3319;
+            font-size: 15px;
+            padding: 8px 26px;
+        }
+        .btn-secondary:active {
+            box-shadow: 0 2px 0 #4a3319;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <!-- 返回按鈕 -->
+    <button id="back-btn" aria-label="返回主選單" title="返回主選單">
+        <svg viewBox="0 0 24 24"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12z"/></svg>
+    </button>
+
+    <!-- HUD 資訊 -->
+    <div id="score-display" class="hud-element">分數: 0</div>
+    <div id="best-score-container" class="hud-element">
+        <span class="best-icon">🏆</span>
+        <span id="best-score-display">0</span>
+    </div>
+
+    <!-- 跨元素相生彈窗 -->
+    <div id="element-popup">
+        <div class="ep-card" id="ep-card">
+            <div id="ep-title">木生火</div>
+            <div id="ep-sub">五行相生・木 → 火</div>
+        </div>
+    </div>
+
+    <!-- 音樂設定按鈕與面板 -->
+    <div id="audio-toggle-btn">
+        <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+    </div>
+    <div id="audio-menu">
+        <div class="menu-item">
+            <span>音樂 (BGM)</span>
+            <label class="switch">
+                <input type="checkbox" id="bgm-switch" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="menu-item">
+            <span>音效 (SFX)</span>
+            <label class="switch">
+                <input type="checkbox" id="sfx-switch" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- 畫布 -->
+    <canvas id="main-canvas" width="450" height="750"></canvas>
+
+    <!-- 開始介面 -->
+    <div id="start-screen" class="screen">
+        <div class="game-title">五行字之森</div>
+        <div class="game-subtitle">漢字疊加，推演五行交替</div>
+
+        <div class="info-card">
+            <div class="info-title">遊戲說明</div>
+            <ul class="info-list">
+                <li>移動滑鼠或手指選擇位置，<b>點擊放下</b>漢字球。</li>
+                <li><b>兩個相同的字</b>相撞，會合成下一個字並得分。</li>
+                <li>漢字疊過上方<b>紅色虛線</b>並停留時，遊戲結束。</li>
+            </ul>
+            <div class="wuxing-order">
+                五行相生：<span class="el-wood">木</span><span class="arrow">→</span><span class="el-fire">火</span><span class="arrow">→</span><span class="el-earth">土</span><span class="arrow">→</span><span class="el-metal">金</span><span class="arrow">→</span><span class="el-water">水</span>
+            </div>
+            <div class="mode-tabs">
+                <button class="mode-tab active" data-mode="easy">簡單</button>
+                <button class="mode-tab" data-mode="hard">困難</button>
+            </div>
+            <div class="chain-preview" id="chain-preview"></div>
+        </div>
+
+        <button class="btn" id="start-btn">開始合成</button>
+    </div>
+
+    <!-- 結束介面 -->
+    <div id="end-screen" class="screen">
+        <div class="end-panel">
+            <div class="end-title">遊戲結束</div>
+            <div class="score-box">本次得分: <span id="final-score">0</span></div>
+            <div class="best-box">🏆 最佳成績: <span id="end-best-score">0</span></div>
+            <div id="new-record-notification" class="new-record-tag">🎉 新紀錄誕生！</div>
+            <div class="end-btns">
+                <button class="btn" id="restart-btn" style="font-size: 18px; padding: 10px 30px;">再玩一次</button>
+                <button class="btn btn-secondary" id="back-menu-btn">切換難度</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Matter.js 物理引擎 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+
+<script>
+// --- 遊戲組態與資料定義 ---
+// 每個漢字球的配色 [淺底, 深邊/字色]，依字查詢，兩種難度共用
+const CHAR_STYLE = {
+    '木': ['#e2f0d9', '#385723'],
+    '林': ['#c5e0b4', '#243f16'],
+    '森': ['#a9d18e', '#14270d'],
+    '火': ['#fce4d6', '#c65911'],
+    '炎': ['#f8cbad', '#843c0c'],
+    '焱': ['#f4b084', '#591600'],
+    '燚': ['#ea7e5d', '#3e001c'],
+    '土': ['#fff2cc', '#bf9000'],
+    '圭': ['#ffe599', '#7f6000'],
+    '垚': ['#ffd966', '#4c3a00'],
+    '㙓': ['#f1c232', '#261c00'],
+    '金': ['#fbf3da', '#b8860b'],
+    '鍂': ['#f9e7b9', '#b79536'],
+    '鑫': ['#f4db9a', '#93731c'],
+    '水': ['#ddebf7', '#2f5597'],
+    '沝': ['#bdd7ee', '#1f3864'],
+    '淼': ['#9dc3e6', '#0b1f4d']
+};
+
+const ELEMENT_NAME = { wood: '木', fire: '火', earth: '土', metal: '金', water: '水' };
+
+// 每個階段格式：[漢字, 五行, 半徑, 合成得分]
+// 五行相生：木→火→土→金→水；同元素同字相碰進化，跨元素時彈窗提示。
+// 最終字「淼」為水之極致，無法再合成。
+const MODES = {
+    // 簡單：每種元素 2~3 階（無 燚/㙓/鍂/沝）
+    easy: {
+        label: '簡單',
+        tiers: [
+            ['木', 'wood',  25, 1],
+            ['林', 'wood',  36, 3],
+            ['森', 'wood',  47, 6],
+            ['火', 'fire',  58, 10],
+            ['炎', 'fire',  69, 15],
+            ['焱', 'fire',  80, 21],
+            ['土', 'earth', 91, 28],
+            ['圭', 'earth', 102, 36],
+            ['垚', 'earth', 113, 45],
+            ['金', 'metal', 124, 55],
+            ['鑫', 'metal', 135, 66],
+            ['水', 'water', 146, 80],
+            ['淼', 'water', 156, 100]
+        ]
+    },
+    // 困難：完整 17 階
+    hard: {
+        label: '困難',
+        tiers: [
+            ['木', 'wood',  25, 1],
+            ['林', 'wood',  32, 2],
+            ['森', 'wood',  40, 4],
+            ['火', 'fire',  48, 7],
+            ['炎', 'fire',  56, 11],
+            ['焱', 'fire',  65, 16],
+            ['燚', 'fire',  74, 22],
+            ['土', 'earth', 83, 29],
+            ['圭', 'earth', 92, 37],
+            ['垚', 'earth', 101, 46],
+            ['㙓', 'earth', 110, 56],
+            ['金', 'metal', 118, 67],
+            ['鍂', 'metal', 126, 79],
+            ['鑫', 'metal', 134, 92],
+            ['水', 'water', 142, 106],
+            ['沝', 'water', 149, 121],
+            ['淼', 'water', 156, 137]
+        ]
+    }
+};
+
+// 當局使用的字表（開局時依所選難度重建，綁定到這一局）
+let CHARS = [];
+function buildChars(mode) {
+    CHARS = MODES[mode].tiers.map(([char, element, radius, score]) => ({
+        char, element, radius, score, colors: CHAR_STYLE[char]
+    }));
+}
+
+// --- DOM 元素 ---
+const canvas = document.getElementById('main-canvas');
+const ctx = canvas.getContext('2d');
+const backBtn = document.getElementById('back-btn');
+const startScreen = document.getElementById('start-screen');
+const endScreen = document.getElementById('end-screen');
+const startBtn = document.getElementById('start-btn');
+const restartBtn = document.getElementById('restart-btn');
+const scoreDisplay = document.getElementById('score-display');
+const bestScoreContainer = document.getElementById('best-score-container');
+const bestScoreDisplay = document.getElementById('best-score-display');
+const finalScoreEl = document.getElementById('final-score');
+const newRecordNotification = document.getElementById('new-record-notification');
+const audioToggleBtn = document.getElementById('audio-toggle-btn');
+const audioMenu = document.getElementById('audio-menu');
+const bgmSwitch = document.getElementById('bgm-switch');
+const sfxSwitch = document.getElementById('sfx-switch');
+const chainPreview = document.getElementById('chain-preview');
+const modeTabs = document.querySelectorAll('.mode-tab');
+const elementPopup = document.getElementById('element-popup');
+const epCard = document.getElementById('ep-card');
+const epTitle = document.getElementById('ep-title');
+const epSub = document.getElementById('ep-sub');
+const endBestScore = document.getElementById('end-best-score');
+const backMenuBtn = document.getElementById('back-menu-btn');
+
+// --- 遊戲常數 ---
+const W = 450, H = 750;
+const WALL_THICKNESS = 20;
+const DANGER_LINE_Y = 130; // 越界線
+const DROP_Y = 80;          // 下落起始 Y
+const DROP_COOLDOWN = 450;  // 丟下一顆的冷卻時間 (ms)
+
+// --- 遊戲狀態 ---
+let gameState = 'start'; // start | playing | ended
+let score = 0;
+let currentMode = 'easy';   // 本局難度
+let selectedMode = 'easy';  // 選單上目前選擇的難度
+let bestScore = 0;          // 當前難度的最佳成績
+let bestBeforeGame = 0;     // 開局前的最佳成績（結算時判斷是否破紀錄用）
+let currentCharIndex = 0;   // 0~3 隨機生成前四個小字
+let nextCharIndex = 0;
+let canDrop = true;
+let lastDropTime = 0;
+let pointerX = W / 2;
+let gameOverTimer = 0;
+
+// --- 最佳成績：依難度分別儲存 ---
+function bestStorageKey(mode) { return 'wuxing_best_' + mode; }
+function loadBest(mode) {
+    return parseInt(localStorage.getItem(bestStorageKey(mode)) || '0', 10);
+}
+
+// --- Matter.js 物理世界 ---
+const { Engine, World, Bodies, Body, Events, Composite } = Matter;
+const engine = Engine.create();
+engine.world.gravity.y = 1.0;
+const world = engine.world;
+
+// 圍牆（靜態）
+const walls = [
+    Bodies.rectangle(W / 2, H + WALL_THICKNESS / 2, W, WALL_THICKNESS, { isStatic: true, label: 'wall' }), // 底
+    Bodies.rectangle(-WALL_THICKNESS / 2, H / 2, WALL_THICKNESS, H, { isStatic: true, label: 'wall' }),     // 左
+    Bodies.rectangle(W + WALL_THICKNESS / 2, H / 2, WALL_THICKNESS, H, { isStatic: true, label: 'wall' })  // 右
+];
+World.add(world, walls);
+
+// --- 音訊系統 (Web Audio API) ---
+let audioCtx = null;
+let bgmGain = null;
+let bgmOsc = null;
+let bgmPlaying = false;
+
+function ensureAudio() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function playSfx(type) {
+    if (!sfxSwitch.checked) return;
+    ensureAudio();
+    const t = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    if (type === 'drop') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, t);
+        osc.frequency.exponentialRampToValueAtTime(220, t + 0.12);
+        gain.gain.setValueAtTime(0.15, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+        osc.start(t); osc.stop(t + 0.15);
+    } else if (type === 'merge') {
+        // 依合成等級提升音高
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523, t);
+        osc.frequency.exponentialRampToValueAtTime(1046, t + 0.18);
+        gain.gain.setValueAtTime(0.2, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+        osc.start(t); osc.stop(t + 0.25);
+    } else if (type === 'over') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(330, t);
+        osc.frequency.exponentialRampToValueAtTime(110, t + 0.5);
+        gain.gain.setValueAtTime(0.2, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+        osc.start(t); osc.stop(t + 0.55);
+    }
+}
+
+// 簡易循環 BGM（五聲音階）
+const BGM_NOTES = [523, 587, 659, 784, 880, 784, 659, 587];
+let bgmNoteIndex = 0;
+let bgmTimer = null;
+
+function startBgm() {
+    if (!bgmSwitch.checked) return;
+    ensureAudio();
+    if (bgmPlaying) return;
+    bgmPlaying = true;
+    const playNote = () => {
+        if (!bgmPlaying || !bgmSwitch.checked) { bgmPlaying = false; return; }
+        const t = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(BGM_NOTES[bgmNoteIndex % BGM_NOTES.length], t);
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.exponentialRampToValueAtTime(0.06, t + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+        osc.start(t);
+        osc.stop(t + 0.5);
+        bgmNoteIndex++;
+        bgmTimer = setTimeout(playNote, 500);
+    };
+    playNote();
+}
+
+function stopBgm() {
+    bgmPlaying = false;
+    if (bgmTimer) { clearTimeout(bgmTimer); bgmTimer = null; }
+}
+
+// --- 字體生成 (純畫布繪製，避免外部字型依賴) ---
+// 直接使用系統中文細明體/微軟正黑體繪製
+
+function createCharBody(x, y, tierIndex) {
+    const data = CHARS[tierIndex];
+    const radius = Math.max(8, data.radius);
+    const body = Bodies.circle(x, y, radius, {
+        restitution: 0.2,
+        friction: 0.6,
+        frictionAir: 0.02,
+        density: 0.0012,
+        label: 'char'
+    });
+    body.tierIndex = tierIndex;
+    body.charData = data;
+    body.spawnTime = performance.now();
+    World.add(world, body);
+    return body;
+}
+
+// --- 合成事件處理 (同字相碰 → 進化) ---
+const pendingMerges = new Set();
+
+Events.on(engine, 'collisionStart', (event) => {
+    for (const pair of event.pairs) {
+        const a = pair.bodyA, b = pair.bodyB;
+        if (a.label !== 'char' || b.label !== 'char') continue;
+        if (a.tierIndex !== b.tierIndex) continue;
+        if (a.merging || b.merging) continue;
+        // 最終字不合成
+        if (a.tierIndex >= CHARS.length - 1) continue;
+        a.merging = true;
+        b.merging = true;
+        const tier = a.tierIndex;
+        const nx = (a.position.x + b.position.x) / 2;
+        const ny = (a.position.y + b.position.y) / 2;
+        pendingMerges.add(() => doMerge(a, b, tier, nx, ny));
+    }
+});
+
+// 跨元素相生彈窗配色（淺底 + 深字/框）
+const POPUP_STYLE = {
+    wood:  ['#eef7e4', '#385723'],
+    fire:  ['#fdeee6', '#c65911'],
+    earth: ['#fdf6dd', '#bf9000'],
+    metal: ['#fbf3da', '#93731c'],
+    water: ['#eef5fc', '#2f5597']
+};
+let popupTimer = null;
+
+function showElementPopup(prevEl, nextEl) {
+    const [bg, fg] = POPUP_STYLE[nextEl];
+    epCard.style.background = bg;
+    epCard.style.borderColor = fg;
+    epTitle.style.color = fg;
+    epTitle.textContent = ELEMENT_NAME[prevEl] + '生' + ELEMENT_NAME[nextEl];
+    epSub.textContent = '五行相生・' + ELEMENT_NAME[prevEl] + ' → ' + ELEMENT_NAME[nextEl];
+    // 重新觸發動畫
+    elementPopup.classList.remove('show');
+    void elementPopup.offsetWidth;
+    elementPopup.classList.add('show');
+    clearTimeout(popupTimer);
+    popupTimer = setTimeout(() => elementPopup.classList.remove('show'), 1500);
+}
+
+function doMerge(a, b, tier, x, y) {
+    World.remove(world, a);
+    World.remove(world, b);
+    const nextTier = tier + 1;
+    const newBody = createCharBody(x, y, nextTier);
+    // 跨元素合成（如 森+森→火）時彈出「木生火」淺底提示
+    if (CHARS[tier].element !== CHARS[nextTier].element) {
+        showElementPopup(CHARS[tier].element, CHARS[nextTier].element);
+    }
+    score += CHARS[nextTier].score;
+    updateScore();
+    playSfx('merge');
+    // 合成動畫標記
+    newBody.justMerged = true;
+    newBody.mergeAnimTime = performance.now();
+}
+
+// --- 繪圖 ---
+function drawBackground() {
+    // 容器背景已由 CSS 提供，這裡畫危險線與提示
+    ctx.clearRect(0, 0, W, H);
+    // 淡淡的五行底紋
+    ctx.save();
+    ctx.globalAlpha = 0.05;
+    ctx.fillStyle = '#4a3319';
+    ctx.font = '120px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('五行', W / 2, H / 2 - 40);
+    ctx.fillText('相生', W / 2, H / 2 + 80);
+    ctx.restore();
+}
+
+function drawDangerLine() {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(217, 83, 79, 0.5)';
+    ctx.setLineDash([8, 6]);
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, DANGER_LINE_Y);
+    ctx.lineTo(W, DANGER_LINE_Y);
+    ctx.stroke();
+    ctx.restore();
+}
+
+function drawCharBody(body) {
+    const data = body.charData;
+    const r = data.radius;
+    const x = body.position.x;
+    const y = body.position.y;
+    const angle = body.angle;
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+
+    // 合成剛誕生的閃光
+    let scale = 1;
+    if (body.justMerged) {
+        const dt = performance.now() - body.mergeAnimTime;
+        if (dt < 250) {
+            scale = 1 + 0.25 * (1 - dt / 250);
+        } else {
+            body.justMerged = false;
+        }
+    }
+    ctx.scale(scale, scale);
+
+    // 外圈
+    const grad = ctx.createRadialGradient(-r * 0.3, -r * 0.3, r * 0.2, 0, 0, r);
+    grad.addColorStop(0, data.colors[0]);
+    grad.addColorStop(1, data.colors[1]);
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 邊框
+    ctx.strokeStyle = data.colors[1];
+    ctx.lineWidth = Math.max(2, r * 0.06);
+    ctx.stroke();
+
+    // 文字
+    ctx.fillStyle = data.colors[1];
+    const fontSize = Math.max(14, r * 0.95);
+    ctx.font = `bold ${fontSize}px "PingFang TC", "Microsoft JhengHei", serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(data.char, 0, 0);
+
+    ctx.restore();
+}
+
+function drawPreview() {
+    if (gameState !== 'playing') return;
+    const data = CHARS[currentCharIndex];
+    const r = data.radius;
+    const x = Math.max(r, Math.min(W - r, pointerX));
+    const y = DROP_Y;
+
+    ctx.save();
+    ctx.globalAlpha = 0.85;
+    // 預覽球
+    const grad = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.2, x, y, r);
+    grad.addColorStop(0, data.colors[0]);
+    grad.addColorStop(1, data.colors[1]);
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = data.colors[1];
+    ctx.lineWidth = Math.max(2, r * 0.06);
+    ctx.stroke();
+    ctx.fillStyle = data.colors[1];
+    ctx.font = `bold ${Math.max(14, r * 0.95)}px "PingFang TC", "Microsoft JhengHei", serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(data.char, x, y);
+
+    // 落點指引線
+    ctx.globalAlpha = 0.3;
+    ctx.strokeStyle = data.colors[1];
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(x, y + r);
+    ctx.lineTo(x, H - 10);
+    ctx.stroke();
+    ctx.restore();
+}
+
+function render() {
+    drawBackground();
+    drawDangerLine();
+    const bodies = Composite.allBodies(world);
+    for (const b of bodies) {
+        if (b.label === 'char') drawCharBody(b);
+    }
+    drawPreview();
+}
+
+// --- 遊戲邏輯 ---
+function randomSmallIndex() {
+    // 只生成前 4 個（木/林/火/炎範圍前四個：木、林、森、火）
+    // 為了好玩，限制在前四個小字
+    return Math.floor(Math.random() * 4);
+}
+
+function dropChar() {
+    if (!canDrop || gameState !== 'playing') return;
+    const data = CHARS[currentCharIndex];
+    const r = data.radius;
+    const x = Math.max(r, Math.min(W - r, pointerX));
+    createCharBody(x, DROP_Y + r, currentCharIndex);
+    playSfx('drop');
+    canDrop = false;
+    lastDropTime = performance.now();
+    // 預備下一個
+    currentCharIndex = nextCharIndex;
+    nextCharIndex = randomSmallIndex();
+}
+
+function updateScore() {
+    scoreDisplay.textContent = `分數: ${score}`;
+}
+
+function updateBestDisplay() {
+    bestScoreDisplay.textContent = bestScore;
+    bestScoreContainer.style.display = bestScore > 0 ? 'flex' : 'none';
+}
+
+function checkGameOver() {
+    if (gameState !== 'playing') return;
+    const bodies = Composite.allBodies(world);
+    let over = false;
+    for (const b of bodies) {
+        if (b.label !== 'char') continue;
+        // 必須已過了生成緩衝時間且靜止/接近靜止並越過危險線
+        if (performance.now() - (b.spawnTime || 0) < 1500) continue;
+        if (b.position.y - b.charData.radius < DANGER_LINE_Y) {
+            // 速度接近 0 才算「停在上面」
+            if (Math.abs(b.velocity.y) < 0.6 && Math.abs(b.velocity.x) < 0.6) {
+                over = true;
+                break;
+            }
+        }
+    }
+    if (over) {
+        gameOverTimer += 16;
+        if (gameOverTimer > 400) endGame();
+    } else {
+        gameOverTimer = 0;
+    }
+}
+
+function endGame() {
+    gameState = 'ended';
+    playSfx('over');
+    stopBgm();
+    finalScoreEl.textContent = score;
+    // 結算時才寫入最佳成績（依難度分別記錄）
+    const isNewRecord = score > 0 && score > bestBeforeGame;
+    if (isNewRecord) {
+        bestScore = score;
+        localStorage.setItem(bestStorageKey(currentMode), String(score));
+    }
+    updateBestDisplay();
+    endBestScore.textContent = bestScore;
+    newRecordNotification.style.display = isNewRecord ? 'block' : 'none';
+    endScreen.style.display = 'flex';
+}
+
+function startGame(mode) {
+    currentMode = mode || selectedMode;
+    selectedMode = currentMode;
+    // 依難度重建這一局的字表（局配置）
+    buildChars(currentMode);
+    // 清除舊字體
+    const bodies = Composite.allBodies(world).filter(b => b.label === 'char');
+    for (const b of bodies) World.remove(world, b);
+    elementPopup.classList.remove('show');
+    score = 0;
+    gameOverTimer = 0;
+    canDrop = true;
+    currentCharIndex = randomSmallIndex();
+    nextCharIndex = randomSmallIndex();
+    // 讀取該難度的最佳成績
+    bestScore = loadBest(currentMode);
+    bestBeforeGame = bestScore;
+    updateScore();
+    updateBestDisplay();
+    startScreen.style.display = 'none';
+    endScreen.style.display = 'none';
+    backBtn.style.display = 'flex';
+    gameState = 'playing';
+    ensureAudio();
+    if (bgmSwitch.checked) startBgm();
+}
+
+function backToMenu() {
+    gameState = 'start';
+    stopBgm();
+    elementPopup.classList.remove('show');
+    backBtn.style.display = 'none';
+    endScreen.style.display = 'none';
+    startScreen.style.display = 'flex';
+    // 同步分頁高亮為目前選擇的難度
+    modeTabs.forEach(tab => tab.classList.toggle('active', tab.dataset.mode === selectedMode));
+    renderChainPreview(selectedMode);
+}
+
+// --- 主迴圈 ---
+function gameLoop() {
+    if (gameState === 'playing') {
+        Engine.update(engine, 16.666);
+        // 處理合成佇列
+        if (pendingMerges.size > 0) {
+            for (const m of pendingMerges) m();
+            pendingMerges.clear();
+        }
+        // 冷卻
+        if (!canDrop && performance.now() - lastDropTime > DROP_COOLDOWN) {
+            canDrop = true;
+        }
+        checkGameOver();
+    }
+    render();
+    requestAnimationFrame(gameLoop);
+}
+
+// --- 輸入事件 ---
+function getCanvasX(clientX) {
+    const rect = canvas.getBoundingClientRect();
+    return ((clientX - rect.left) / rect.width) * W;
+}
+
+canvas.addEventListener('mousemove', (e) => {
+    pointerX = getCanvasX(e.clientX);
+});
+canvas.addEventListener('touchmove', (e) => {
+    if (e.touches.length > 0) {
+        pointerX = getCanvasX(e.touches[0].clientX);
+        e.preventDefault();
+    }
+}, { passive: false });
+canvas.addEventListener('click', () => { dropChar(); });
+canvas.addEventListener('touchend', (e) => {
+    if (e.changedTouches.length > 0) {
+        pointerX = getCanvasX(e.changedTouches[0].clientX);
+    }
+    dropChar();
+    e.preventDefault();
+}, { passive: false });
+
+// --- 開始選單：合成鏈預覽（即時反映所選難度的真實字表） ---
+function renderChainPreview(mode) {
+    const tiers = MODES[mode].tiers;
+    let html = '';
+    tiers.forEach((t, i) => {
+        if (i > 0) {
+            const cross = tiers[i - 1][1] !== t[1];
+            html += `<span class="chain-arrow${cross ? ' cross' : ''}">→</span>`;
+        }
+        html += `<span class="chain-chip chip-${t[1]}">${t[0]}</span>`;
+    });
+    chainPreview.innerHTML = html;
+}
+
+modeTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        selectedMode = tab.dataset.mode;
+        modeTabs.forEach(t => t.classList.toggle('active', t === tab));
+        renderChainPreview(selectedMode);
+    });
+});
+
+// 按鈕
+startBtn.addEventListener('click', () => { startGame(selectedMode); });
+restartBtn.addEventListener('click', () => { startGame(currentMode); });
+backMenuBtn.addEventListener('click', backToMenu);
+backBtn.addEventListener('click', backToMenu);
+
+// 音訊面板開關
+audioToggleBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    audioMenu.style.display = (audioMenu.style.display === 'flex') ? 'none' : 'flex';
+});
+
+bgmSwitch.addEventListener('change', () => {
+    if (bgmSwitch.checked) { ensureAudio(); startBgm(); }
+    else stopBgm();
+});
+sfxSwitch.addEventListener('change', () => { /* 即時生效 */ });
+
+// 點擊其他區域關閉音訊面板
+document.addEventListener('click', (e) => {
+    if (!audioMenu.contains(e.target) && e.target !== audioToggleBtn && !audioToggleBtn.contains(e.target)) {
+        audioMenu.style.display = 'none';
+    }
+});
+
+// 初始化
+renderChainPreview('easy');
+updateBestDisplay();
+gameLoop();
+</script>
+</body>
+</html>
