@@ -7,11 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
@@ -20,7 +16,6 @@
             color: #fff;
         }
 
-        /* ===== 畫面切換 ===== */
         .screen {
             display: none;
             min-height: 100vh;
@@ -30,81 +25,44 @@
             padding: 24px;
             position: relative;
         }
-        .screen.active {
-            display: flex;
+        .screen.active { display: flex; }
+        .screen.dimmed::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.65);
+            z-index: 40;
+            pointer-events: none;
         }
 
-        /* ===== 音效開關（固定右上角） ===== */
         #btn-sound {
-            position: fixed;
-            top: 14px;
-            right: 14px;
-            z-index: 50;
+            position: fixed; top: 14px; right: 14px; z-index: 50;
         }
 
-        /* ===== 像素風開始畫面 ===== */
-        #screen-start {
-            background: #1b1e46;
-            overflow: hidden;
-            justify-content: center;
-        }
-
-        #stars {
-            position: absolute;
-            inset: 0;
-            z-index: 1;
-            pointer-events: none;
-        }
-        .star {
-            position: absolute;
-            background: #fff;
-        }
-
-        .pixel-deco {
-            position: absolute;
-            z-index: 1;
-            pointer-events: none;
-        }
-
+        /* ===== 開始畫面 ===== */
+        #screen-start { background: #1b1e46; overflow: hidden; justify-content: center; }
+        #stars { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+        .star { position: absolute; background: #fff; }
+        .pixel-deco { position: absolute; z-index: 1; pointer-events: none; }
         .ground {
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: 40px;
-            z-index: 1;
+            position: absolute; left: 0; right: 0; bottom: 0; height: 40px; z-index: 1;
             border-top: 6px solid #2c7a33;
             background: repeating-linear-gradient(90deg, #46b14e 0 24px, #3d9e44 24px 48px);
             box-shadow: inset 0 6px 0 #5ccc66;
         }
 
-        /* 像素小房子（含煙囪與炊煙） */
+        /* 像素小房子：改為可點擊 */
         #house {
-            position: absolute;
-            left: 9%;
-            bottom: 131px;   /* box-shadow 不佔版面：視覺底部對齊草地頂部(40px)+屋高(91px) */
-            z-index: 2;
-            pointer-events: none;
+            position: absolute; left: 9%; bottom: 131px; z-index: 3;
+            cursor: pointer; transition: transform 0.15s;
         }
+        #house:hover { transform: scale(1.08); }
         #chimney {
-            position: absolute;
-            left: 76px;
-            top: -22px;
-            width: 16px;
-            height: 44px;
-            background: #b0bec5;
-            box-shadow: inset -4px 0 0 #78909c;
-            z-index: 0;
+            position: absolute; left: 76px; top: -22px; width: 16px; height: 44px;
+            background: #b0bec5; box-shadow: inset -4px 0 0 #78909c; z-index: 0;
         }
         .smoke {
-            position: absolute;
-            left: 79px;
-            top: -30px;
-            width: 10px;
-            height: 10px;
-            background: #cfd8dc;
-            opacity: 0;
-            z-index: 0;
+            position: absolute; left: 79px; top: -30px; width: 10px; height: 10px;
+            background: #cfd8dc; opacity: 0; z-index: 0;
             animation: smokeRise 4.2s linear infinite;
         }
         @keyframes smokeRise {
@@ -113,42 +71,27 @@
             55%  { transform: translate(10px, -26px) scale(1.35); opacity: 0.55; }
             100% { transform: translate(20px, -54px) scale(1.8); opacity: 0; }
         }
+        #house-label {
+            position: absolute; left: 50%; transform: translateX(-50%);
+            bottom: -26px; font-size: 14px; font-weight: 700; color: #ffe066; white-space: nowrap;
+            text-shadow: 1px 1px 0 #14142b, 2px 2px 0 rgba(0,0,0,0.4); pointer-events: none;
+        }
 
         .pixel-title {
-            font-size: clamp(36px, 8vw, 64px);
-            font-weight: 900;
-            letter-spacing: 6px;
+            font-size: clamp(36px, 8vw, 64px); font-weight: 900; letter-spacing: 6px;
             color: #ffe066;
             text-shadow: 4px 4px 0 #14142b, 8px 8px 0 rgba(0, 0, 0, 0.3);
-            text-align: center;
-            line-height: 1.2;
-            z-index: 2;
+            text-align: center; line-height: 1.2; z-index: 2;
         }
-
         .pixel-sub {
-            display: block;
-            font-family: "Press Start 2P", monospace;
-            font-size: clamp(10px, 2.2vw, 15px);
-            letter-spacing: 2px;
-            color: #fff;
-            text-shadow: 3px 3px 0 #14142b;
-            margin-top: 16px;
-            font-weight: normal;
+            display: block; font-family: "Press Start 2P", monospace;
+            font-size: clamp(10px, 2.2vw, 15px); letter-spacing: 2px; color: #fff;
+            text-shadow: 3px 3px 0 #14142b; margin-top: 16px; font-weight: normal;
         }
+        .start-row { display: flex; align-items: center; margin-top: 60px; z-index: 2; }
 
-        .start-row {
-            display: flex;
-            align-items: center;
-            margin-top: 60px;
-            z-index: 2;
-        }
-
-        /* 經典 Windows 箭頭光標（像素點陣） */
         #pixel-cursor {
-            width: 6px;
-            height: 6px;
-            background: transparent;
-            margin-left: 4px;
+            width: 6px; height: 6px; background: transparent; margin-left: 4px;
             animation: cursorTap 1.2s ease-in-out infinite;
         }
         @keyframes cursorTap {
@@ -156,113 +99,59 @@
             50% { transform: translate(-14px, -46px); }
         }
 
-        /* ===== 像素按鈕（硬邊、純色、硬陰影） ===== */
         .pixel-btn {
-            font-family: inherit;
-            font-weight: 900;
-            color: #fff;
-            border: 4px solid #14142b;
-            border-radius: 0;
-            cursor: pointer;
-            padding: 16px 28px;
-            font-size: 22px;
-            line-height: 1.5;
-            letter-spacing: 3px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
+            font-family: inherit; font-weight: 900; color: #fff;
+            border: 4px solid #14142b; border-radius: 0; cursor: pointer;
+            padding: 16px 28px; font-size: 22px; line-height: 1.5; letter-spacing: 3px;
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
             background: #e53935;
             box-shadow: inset -5px -5px 0 rgba(0, 0, 0, 0.28),
                         inset 5px 5px 0 rgba(255, 255, 255, 0.28),
                         8px 8px 0 rgba(0, 0, 0, 0.35);
             transition: transform 0.05s linear, box-shadow 0.05s linear;
         }
-        .pixel-btn span {
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            opacity: 0.95;
-        }
+        .pixel-btn span { font-size: 14px; font-weight: 700; letter-spacing: 2px; opacity: 0.95; }
         .pixel-btn:active {
             transform: translate(5px, 5px);
             box-shadow: inset -5px -5px 0 rgba(0, 0, 0, 0.28),
                         inset 5px 5px 0 rgba(255, 255, 255, 0.28),
                         3px 3px 0 rgba(0, 0, 0, 0.35);
         }
+        .btn-start { background: #ff5252; font-size: clamp(24px, 5vw, 30px); padding: 18px 40px; }
 
-        .btn-start {
-            background: #ff5252;
-            font-size: clamp(24px, 5vw, 30px);
-            padding: 18px 40px;
-        }
-
-        /* ===== 開始畫面專用元素樣式覆蓋（僅作用於指定實例，不影響其他畫面/按鈕） ===== */
-        /* Element 1：開始畫面主標題 */
         section#screen-start > h1.pixel-title {
-            width: 218px;
-            height: 88px;
+            width: 218px; height: 88px;
             font-family: "Lucida Console", Monaco, monospace;
-            transform: rotate(360deg);
-            margin: 5px 0;
+            transform: rotate(360deg); margin: 5px 0;
         }
-        /* Element 4：開始畫面主標題內的英文副標 */
-        section#screen-start > h1.pixel-title > span.pixel-sub {
-            font-size: 20px;
-        }
-        /* Element 2：開始按鈕 */
-        button#btn-start {
-            font-family: Georgia, serif;
-        }
-        /* Element 3：開始按鈕內的中文 span */
-        button#btn-start > span {
-            font-family: "Trebuchet MS", Helvetica, sans-serif;
-            font-size: 20px;
-        }
+        section#screen-start > h1.pixel-title > span.pixel-sub { font-size: 20px; }
+        button#btn-start { font-family: Georgia, serif; }
+        button#btn-start > span { font-family: "Trebuchet MS", Helvetica, sans-serif; font-size: 20px; }
 
-        /* ===== 難度選擇畫面 ===== */
         .diff-list {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            margin-top: 48px;
-            width: min(92vw, 440px);
-            z-index: 2;
+            display: flex; flex-direction: column; gap: 24px; margin-top: 48px;
+            width: min(92vw, 440px); z-index: 2;
         }
-        .diff-list .pixel-btn {
-            width: 100%;
-        }
+        .diff-list .pixel-btn { width: 100%; }
         .diff-beginner { background: #43a047; }
         .diff-intermediate { background: #fb8c00; }
         .diff-advanced { background: #c62828; }
 
         /* ===== 遊戲畫面 ===== */
         .game-top {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 14px;
-            flex-wrap: wrap;
-            justify-content: center;
+            display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+            flex-wrap: wrap; justify-content: center;
         }
-
         .hud {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 8px 18px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 17px;
+            background: rgba(255, 255, 255, 0.2); padding: 8px 18px;
+            border-radius: 20px; font-weight: bold; font-size: 17px;
         }
-
-        #score {
-            font-size: 20px;
-            font-weight: bold;
-        }
+        #score { font-size: 20px; font-weight: bold; }
+        .timer-warning { color: #ff5252 !important; animation: timerBlink 0.5s infinite alternate; }
+        @keyframes timerBlink { from { opacity: 1; } to { opacity: 0.5; } }
 
         .btn-small {
-            font-size: 14px;
-            letter-spacing: 1px;
-            padding: 8px 14px;
+            font-size: 14px; letter-spacing: 1px; padding: 8px 14px;
             box-shadow: inset -4px -4px 0 rgba(0, 0, 0, 0.28),
                         inset 4px 4px 0 rgba(255, 255, 255, 0.28),
                         5px 5px 0 rgba(0, 0, 0, 0.35);
@@ -273,134 +162,193 @@
                         inset 4px 4px 0 rgba(255, 255, 255, 0.28),
                         2px 2px 0 rgba(0, 0, 0, 0.35);
         }
-
         #btn-hint { background: #26a69a; }
         #btn-hint.disabled { opacity: 0.45; cursor: default; }
 
         #message {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 10px 24px;
-            border-radius: 24px;
-            min-height: 24px;
-            margin-bottom: 20px;
-            font-size: 18px;
-            text-align: center;
+            color: #fff; background: rgba(255, 255, 255, 0.2);
+            padding: 10px 24px; border-radius: 24px; min-height: 24px;
+            margin-bottom: 20px; font-size: 18px; text-align: center;
         }
 
-        /* 三種難度皆為 4 欄方格（4×4 / 4×5 / 4×6） */
-        #game-board {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            width: 100%;
-        }
-        .board-beginner     { max-width: 430px; }
+        #game-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; }
+        .board-beginner { max-width: 430px; }
         .board-intermediate { max-width: 465px; }
-        .board-advanced     { max-width: 500px; }
+        .board-advanced { max-width: 500px; }
 
         .card {
-            aspect-ratio: 1 / 1;
-            background: #fff;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 3px;
-            padding: 4px;
-            color: #4a4a68;
-            cursor: pointer;
+            aspect-ratio: 1 / 1; background: #fff; border-radius: 12px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 3px; padding: 4px; color: #4a4a68; cursor: pointer;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
-            user-select: none;
+            transition: transform 0.2s, background 0.2s, box-shadow 0.2s; user-select: none;
         }
-        /* 拼音在漢字上方 */
         .card .py {
-            font-size: 15px;
-            font-weight: 600;
-            color: #7986cb;
-            line-height: 1;
+            font-size: 15px; font-weight: 600; color: #7986cb; line-height: 1;
             font-family: "PingFang TC", "Helvetica Neue", sans-serif;
         }
         .card .char { font-size: 36px; font-weight: bold; line-height: 1.1; }
-
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
-        }
-
+        .card:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25); }
         .card.selected {
-            background: #ffd54f;
-            transform: translateY(-4px) scale(1.05);
+            background: #ffd54f; transform: translateY(-4px) scale(1.05);
             box-shadow: 0 8px 16px rgba(255, 193, 7, 0.5);
         }
         .card.selected .py { color: #8d6e00; }
-
-        .card.matched {
-            background: #81c784;
-            color: #fff;
-            cursor: default;
-            animation: pop 0.3s ease;
-        }
+        .card.matched { background: #81c784; color: #fff; cursor: default; animation: pop 0.3s ease; }
         .card.matched .py { color: #e8f5e9; }
-
-        /* 配錯：震動 + 變紅 */
-        .card.wrong {
-            background: #ef5350;
-            color: #fff;
-            animation: shake 0.4s;
-        }
+        .card.wrong { background: #ef5350; color: #fff; animation: shake 0.4s; }
         .card.wrong .py { color: #ffebee; }
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-7px); }
-            40% { transform: translateX(7px); }
-            60% { transform: translateX(-5px); }
-            80% { transform: translateX(5px); }
+            20% { transform: translateX(-7px); } 40% { transform: translateX(7px); }
+            60% { transform: translateX(-5px); } 80% { transform: translateX(5px); }
         }
-
-        /* 提示：金框閃爍 */
-        .card.hinted {
-            outline: 4px solid #ffd54f;
-            animation: hintPulse 0.5s infinite alternate;
-        }
+        .card.hinted { outline: 4px solid #ffd54f; animation: hintPulse 0.5s infinite alternate; }
         @keyframes hintPulse {
             from { box-shadow: 0 0 0 0 rgba(255, 213, 79, 0.7); }
             to   { box-shadow: 0 0 0 10px rgba(255, 213, 79, 0.1); }
         }
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
 
-        @keyframes pop {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-
-        .game-actions {
-            margin-top: 24px;
-            display: flex;
-            gap: 18px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .game-actions .pixel-btn {
-            display: none;
-            font-size: 18px;
-            padding: 12px 28px;
-        }
-        .game-actions .pixel-btn.show {
-            display: flex;
-        }
+        .game-actions { margin-top: 24px; display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; }
+        .game-actions .pixel-btn { display: none; font-size: 18px; padding: 12px 28px; }
+        .game-actions .pixel-btn.show { display: flex; }
         .btn-next { background: #43a047; }
         .btn-upgrade { background: #fb8c00; }
         .btn-home { background: #5c6bc0; }
 
+        /* ===== Modal 彈窗 ===== */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0; z-index: 200;
+            background: rgba(0,0,0,0.75);
+            justify-content: center; align-items: center; padding: 20px;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-box {
+            background: #fff; color: #2b2b2b; border-radius: 16px;
+            padding: 28px 24px; max-width: 460px; width: 100%;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+            text-align: center; max-height: 85vh; overflow-y: auto;
+            border: 4px solid #14142b;
+        }
+        .modal-box h2 {
+            font-size: 26px; color: #e53935; margin-bottom: 16px;
+            font-family: "Press Start 2P", monospace; letter-spacing: 2px;
+        }
+        .modal-box p { font-size: 17px; line-height: 1.6; margin-bottom: 16px; }
+        .modal-box .big-score { font-size: 32px; font-weight: bold; color: #ff9800; margin: 12px 0; }
+        .modal-box .modal-input {
+            width: 100%; padding: 12px 16px; font-size: 18px;
+            border: 3px solid #ccc; border-radius: 8px; margin-bottom: 16px;
+            text-align: center; font-family: inherit;
+        }
+        .modal-box .modal-input:focus { border-color: #667eea; outline: none; }
+        .modal-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .modal-actions .pixel-btn { font-size: 16px; padding: 12px 24px; }
+
+        /* 詞語列表 */
+        .vocab-section { text-align: left; margin-top: 16px; }
+        .vocab-section h3 {
+            font-size: 16px; color: #667eea; margin-bottom: 8px;
+            padding-bottom: 4px; border-bottom: 2px solid #667eea;
+        }
+        .vocab-list {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px 12px;
+            font-size: 14px; line-height: 1.5;
+        }
+        .vocab-item { display: flex; justify-content: space-between; }
+        .vocab-item .w { font-weight: bold; color: #2b2b2b; }
+        .vocab-item .p { color: #7986cb; font-family: monospace; }
+
+        /* 排行榜 */
+        .ranking-list { text-align: left; margin-top: 12px; }
+        .rank-row {
+            display: flex; justify-content: space-between; padding: 8px 12px;
+            border-bottom: 1px solid #eee; font-size: 16px;
+        }
+        .rank-row.me { background: #fff3e0; font-weight: bold; }
+        .rank-row .rk { width: 30px; color: #ff9800; }
+        .rank-row .nm { flex: 1; text-align: left; padding-left: 8px; }
+        .rank-row .sc { color: #e53935; font-weight: bold; }
+        .rank-empty { color: #999; text-align: center; padding: 16px; }
+
+        /* ===== 模塊選擇畫面 ===== */
+        #screen-module { background: linear-gradient(135deg, #1b1e46 0%, #2d3170 100%); }
+        .module-list {
+            display: grid; grid-template-columns: repeat(2, 1fr);
+            gap: 16px; margin-top: 32px; width: min(92vw, 480px); z-index: 2;
+        }
+        .module-btn {
+            flex-direction: row; justify-content: center; gap: 8px;
+            font-size: 18px; padding: 16px 12px;
+        }
+        .module-btn .module-icon { font-size: 26px; }
+        .module-btn.cat-animal { background: #e53935; }
+        .module-btn.cat-sport { background: #fb8c00; }
+        .module-btn.cat-fruit { background: #43a047; }
+        .module-btn.cat-festival { background: #26a69a; }
+        .module-btn.cat-teacher { background: #6a1b9a; }
+        .btn-random { background: #5c6bc0; }
+
+        /* ===== 教師面板 ===== */
+        .chapter-section { text-align: left; margin-bottom: 20px; }
+        .chapter-section h3 {
+            font-size: 16px; color: #667eea; margin-bottom: 8px;
+            border-bottom: 2px solid #667eea; padding-bottom: 4px;
+        }
+        .chapter-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 12px; border-bottom: 1px solid #eee; font-size: 15px;
+        }
+        .chapter-row .ch-name { flex: 1; }
+        .chapter-form textarea {
+            width: 100%; padding: 12px; font-size: 16px;
+            border: 3px solid #ccc; border-radius: 8px; margin-bottom: 12px;
+            font-family: inherit; resize: vertical;
+        }
+        .pinyin-missing { margin-bottom: 12px; text-align: left; }
+        .pinyin-missing label {
+            display: inline-flex; align-items: center; gap: 6px;
+            margin: 4px 8px 4px 0; font-size: 14px;
+        }
+        .pinyin-missing input {
+            width: 70px; padding: 4px 8px; font-size: 14px;
+            border: 2px solid #ccc; border-radius: 4px;
+        }
+
+        /* ===== 地圖模式 ===== */
+        #screen-map { background: #0d1b2a; }
+        .hk-map-container {
+            position: relative; z-index: 2;
+            width: min(92vw, 560px); margin: 0 auto;
+        }
+        .hk-map-container img { width: 100%; display: block; }
+        .map-hotspot {
+            position: absolute; transform: translate(-50%, -50%);
+            border-radius: 50%; cursor: pointer;
+        }
+        .map-hotspot:hover {
+            background: rgba(255, 213, 79, 0.3);
+            box-shadow: 0 0 0 3px rgba(255, 213, 79, 0.7);
+        }
+        .map-hotspot.discovered { box-shadow: inset 0 0 0 3px #ffd54f; }
+        .map-legend {
+            display: flex; gap: 16px; margin-top: 12px; z-index: 2;
+            font-size: 14px; font-weight: bold; justify-content: center;
+        }
+        .map-legend span { display: flex; align-items: center; gap: 4px; }
+        .map-legend i { width: 14px; height: 14px; display: inline-block; border-radius: 2px; }
+
+        /* ===== 開始頁小按鈕 ===== */
+        #btn-vocab-small, #btn-map {
+            position: absolute; z-index: 5;
+            font-size: 14px; padding: 10px 14px;
+        }
+        #btn-vocab-small { top: 60px; right: 14px; background: #5c6bc0; }
+        #btn-map { bottom: 20px; right: 20px; background: #26a69a; }
+
         @media (max-width: 520px) {
-            .board-beginner,
-            .board-intermediate,
-            .board-advanced {
-                max-width: 100%;
-            }
+            .board-beginner, .board-intermediate, .board-advanced { max-width: 100%; }
             .card .char { font-size: 28px; }
             .card .py { font-size: 12px; }
             .game-actions .pixel-btn { font-size: 16px; padding: 10px 20px; }
@@ -409,10 +357,9 @@
 </head>
 <body>
 
-    <!-- 音效開關 -->
     <button id="btn-sound" class="pixel-btn btn-small">♪ ON</button>
 
-    <!-- ========== 開始畫面（像素風） ========== -->
+    <!-- ========== 開始畫面 ========== -->
     <section id="screen-start" class="screen active">
         <div id="stars"></div>
         <h1 class="pixel-title">字詞配對<span class="pixel-sub">WORD MATCH</span></h1>
@@ -420,23 +367,34 @@
             <button id="btn-start" class="pixel-btn btn-start">START<span>開始遊戲</span></button>
             <div id="pixel-cursor"></div>
         </div>
-        <div id="house">
+        <div id="house" title="教師入口">
             <div id="chimney"></div>
             <div class="smoke"></div>
             <div class="smoke" style="animation-delay:1.4s"></div>
             <div class="smoke" style="animation-delay:2.8s"></div>
             <div id="house-body"></div>
+            <div id="house-label">🔐 我是老師</div>
         </div>
+        <button id="btn-vocab-small" class="pixel-btn btn-small">📖 詞語</button>
+        <button id="btn-map" class="pixel-btn btn-small">地圖</button>
         <div class="ground"></div>
+    </section>
+
+    <!-- ========== 模塊選擇畫面 ========== -->
+    <section id="screen-module" class="screen">
+        <h2 class="pixel-title">選擇模塊<span class="pixel-sub">SELECT MODULE</span></h2>
+        <div class="module-list" id="module-list"></div>
+        <button class="pixel-btn btn-random" id="btn-random-words" style="margin-top:24px;z-index:2;">隨機詞語 🎲<span>RANDOM WORDS</span></button>
+        <button class="pixel-btn btn-home" id="btn-module-back" style="margin-top:24px;z-index:2;font-size:20px;padding:16px 32px;letter-spacing:3px;">← 返回主界面</button>
     </section>
 
     <!-- ========== 難度選擇畫面 ========== -->
     <section id="screen-difficulty" class="screen">
         <h2 class="pixel-title">選擇難度<span class="pixel-sub">SELECT DIFFICULTY</span></h2>
         <div class="diff-list">
-            <button class="pixel-btn diff-beginner" data-diff="beginner">簡單<span>BEGINNER · 4×4 方格</span></button>
-            <button class="pixel-btn diff-intermediate" data-diff="intermediate">中級<span>INTERMEDIATE · 4×5 方格</span></button>
-            <button class="pixel-btn diff-advanced" data-diff="advanced">困難<span>ADVANCED · 4×6 方格</span></button>
+            <button class="pixel-btn diff-beginner" data-diff="beginner">簡單<span>BEGINNER · 4×4 · 50秒</span></button>
+            <button class="pixel-btn diff-intermediate" data-diff="intermediate">中級<span>INTERMEDIATE · 4×5 · 70秒</span></button>
+            <button class="pixel-btn diff-advanced" data-diff="advanced">困難<span>ADVANCED · 4×6 · 90秒</span></button>
         </div>
     </section>
 
@@ -445,8 +403,8 @@
         <div class="game-top">
             <button id="btn-back" class="pixel-btn btn-small">← 選單</button>
             <div id="hud-level" class="hud">第 1 關 / 共 2 關</div>
-            <div id="score">得分：0 / 8</div>
-            <div id="timer" class="hud">⏱ 00:00</div>
+            <div id="score">積分：0</div>
+            <div id="timer" class="hud">⏱ 00:50</div>
             <button id="btn-hint" class="pixel-btn btn-small">提示 <span>×1</span></button>
         </div>
         <div id="message">點選兩張字卡，照詞語順序組成詞語！</div>
@@ -458,8 +416,116 @@
         </div>
     </section>
 
+    <!-- ========== 暱稱輸入 Modal ========== -->
+    <div class="modal-overlay" id="modal-nickname">
+        <div class="modal-box">
+            <h2>玩家暱稱</h2>
+            <p>請輸入你的遊戲暱稱（1–8 個字）</p>
+            <input type="text" id="nickname-input" class="modal-input" maxlength="8" placeholder="例如：小明">
+            <div class="modal-actions">
+                <button class="pixel-btn btn-home btn-small" id="nickname-skip" style="font-size:14px;">Skip</button>
+                <button class="pixel-btn btn-start" id="nickname-confirm" style="font-size:16px;padding:12px 24px;">確認</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 結果 / 時間到 Modal ========== -->
+    <div class="modal-overlay" id="modal-result">
+        <div class="modal-box">
+            <h2 id="result-title">挑戰成功！</h2>
+            <div class="big-score" id="result-score">積分：0</div>
+            <p id="result-msg"></p>
+            <div class="modal-actions">
+                <button class="pixel-btn btn-next" id="result-next" style="font-size:16px;padding:12px 24px;">下一關</button>
+                <button class="pixel-btn btn-upgrade" id="result-upgrade" style="font-size:16px;padding:12px 24px;">難度升級</button>
+                <button class="pixel-btn btn-home" id="result-home" style="font-size:16px;padding:12px 24px;">返回主界面</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 週排行榜 Modal ========== -->
+    <div class="modal-overlay" id="modal-ranking">
+        <div class="modal-box">
+            <h2>🏆 週排行榜</h2>
+            <p style="font-size:14px;color:#888;">每週一 00:00 更新</p>
+            <div class="ranking-list" id="ranking-list"></div>
+            <div class="modal-actions">
+                <button class="pixel-btn btn-home" id="ranking-close" style="font-size:16px;padding:12px 24px;">關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 詞語列表 Modal ========== -->
+    <div class="modal-overlay" id="modal-vocab">
+        <div class="modal-box">
+            <h2>📖 詞語列表</h2>
+            <p style="font-size:14px;color:#888;">共 <span id="vocab-count">0</span> 個詞語</p>
+            <div id="vocab-content"></div>
+            <div class="modal-actions">
+                <button class="pixel-btn btn-home" id="vocab-close" style="font-size:16px;padding:12px 24px;">關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 教師密碼登入 Modal ========== -->
+    <div class="modal-overlay" id="modal-teacher-login">
+        <div class="modal-box">
+            <h2>🔐 教師入口</h2>
+            <p>請輸入教師密碼</p>
+            <input type="password" id="teacher-password-input" class="modal-input" placeholder="密碼" maxlength="20">
+            <p id="teacher-login-error" style="color:#e53935;font-size:14px;min-height:18px;"></p>
+            <div class="modal-actions">
+                <button class="pixel-btn btn-home btn-small" id="teacher-login-cancel">取消</button>
+                <button class="pixel-btn btn-start btn-small" id="teacher-login-confirm">確認</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 教師面板 Modal ========== -->
+    <div class="modal-overlay" id="modal-teacher-panel">
+        <div class="modal-box" style="max-width:620px;">
+            <h2>📚 教師面板</h2>
+            <div class="chapter-section">
+                <h3>已建章節</h3>
+                <div id="chapter-list"></div>
+            </div>
+            <div class="chapter-form">
+                <h3 id="chapter-form-title" style="font-size:16px;color:#667eea;margin-bottom:8px;border-bottom:2px solid #667eea;padding-bottom:4px;text-align:left;">新增章節</h3>
+                <input type="text" id="chapter-name-input" class="modal-input" placeholder="章節名稱（如：chapter 1）" maxlength="20" style="text-align:left;">
+                <textarea id="chapter-words-input" placeholder="輸入詞語，每行一個或用逗號分隔（每詞2個字）&#10;例如：&#10;星星&#10;月亮&#10;太陽" rows="6"></textarea>
+                <div id="chapter-pinyin-area" class="pinyin-missing"></div>
+                <input type="hidden" id="chapter-edit-id">
+                <p id="chapter-error" style="color:#e53935;font-size:14px;min-height:18px;"></p>
+                <div class="modal-actions">
+                    <button class="pixel-btn btn-home btn-small" id="teacher-panel-close">關閉</button>
+                    <button class="pixel-btn btn-small" id="chapter-reset" style="background:#999;">清空</button>
+                    <button class="pixel-btn btn-start btn-small" id="chapter-generate">生成遊戲 ✨</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 地圖模式 Modal ========== -->
+    <div class="modal-overlay" id="modal-map">
+        <div class="modal-box" style="max-width:560px;">
+            <h2>🗺️ 香港地圖</h2>
+            <p style="font-size:14px;color:#888;">點擊各地區發現隱藏彩蛋！</p>
+            <div class="hk-map-container" id="hk-map"></div>
+            <div class="map-legend">
+                <span><i style="background:#b57fc4;"></i>新界</span>
+                <span><i style="background:#f2a45f;"></i>九龍</span>
+                <span><i style="background:#45a9d4;"></i>港島</span>
+                <span><i style="background:#ecd06f;"></i>離島</span>
+            </div>
+            <div id="map-egg-info" style="min-height:60px;margin-top:16px;"></div>
+            <div class="modal-actions">
+                <button class="pixel-btn btn-home btn-small" id="map-close">關閉</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // ===== 詞庫：每個難度 4 套，進入難度時隨機抽 2 套對應 2 個關卡 =====
+        // ===== 詞庫 =====
         const WORD_BANKS = {
             beginner: [
                 ['大小', '日月', '水火', '左右', '上下', '多少', '長短', '內外'],
@@ -477,17 +543,58 @@
                 ['老虎', '獅子', '大象', '野兔', '松鼠', '狐狸', '綿羊', '斑馬', '熊貓', '企鵝', '海豚', '鯨魚', '鸚鵡', '蝴蝶', '蜜蜂', '螞蟻'],
                 ['跑步', '跳遠', '游泳', '划船', '衝浪', '滑雪', '滑冰', '體操', '武術', '拳擊', '舉重', '射箭', '擊劍', '攀岩', '蹦床', '騎馬', '射擊', '拔河', '太極', '瑜伽', '街舞', '圍棋', '象棋', '馬術', '徒步', '登山'],
                 ['蘋果', '香蕉', '柑橘', '檸檬', '藍莓', '芒果', '西瓜', '葡萄', '櫻桃', '蜜桃', '椰子', '荔枝', '菠蘿', '青菜', '土豆', '洋蔥', '大蒜', '生薑', '辣椒', '香菇'],
-                ['元旦', '春節', '元宵', '清明', '端午', '七夕', '中秋', '重陽', '冬至', '臘八', '除夕', '國慶', '聖誕', '立春', '雨水', '驚蟄', '春分', '穀雨', '立夏', '小滿', '芒種', '夏至', '小暑', '大暑', '立秋', '處暑', '白露', '秋分', '寒露', '霜降', '立冬', '小雪', '大雪', '小寒', '大寒']
+                ['元旦', '春節', '元宵', '清明', '端午', '七夕', '中秋', '重陽', '冬至', '臘八', '除夕', '國慶', '聖誕', '立春', '雨水', '驚蟄', '春分', '清明', '穀雨', '立夏', '小滿', '芒種', '夏至', '小暑', '大暑', '立秋', '處暑', '白露', '秋分', '寒露', '霜降', '立冬', '小雪', '大雪', '小寒', '大寒']
             ]
         };
+
+        // 新增靈活詞語（用現有字 + 少量新字，增加配對彈性）
+        const BONUS_WORDS = [
+            '星球', '流星', '火花', '山水', '風雨', '海風', '皮球', '太陽',
+            '月光', '花園', '天氣', '高山', '小河', '紅花', '綠葉', '白雪',
+            '黑天', '黃花', '藍天', '青草', '大人', '小人', '口水', '手心',
+            '目光', '木耳', '足球', '山羊', '水牛', '火車', '火山', '河水'
+        ];
+
+        // 全域詞語字典（所有可接受的配對）
+        const WORD_DICTIONARY = new Set();
+        WORD_BANKS.beginner.flat().forEach(w => WORD_DICTIONARY.add(w));
+        WORD_BANKS.intermediate.flat().forEach(w => WORD_DICTIONARY.add(w));
+        WORD_BANKS.advanced.flat().forEach(w => WORD_DICTIONARY.add(w));
+        BONUS_WORDS.forEach(w => WORD_DICTIONARY.add(w));
+
+        // ===== 分類字庫（從 advanced 引用，不影響隨機詞語路徑）=====
+        const CATEGORY_BANKS = {
+            'animal':   { name: '動物', icon: '🐯', words: WORD_BANKS.advanced[0] },
+            'sport':    { name: '運動', icon: '⚽', words: WORD_BANKS.advanced[1] },
+            'fruit':    { name: '水果', icon: '🍎', words: WORD_BANKS.advanced[2] },
+            'festival': { name: '節日', icon: '🎉', words: WORD_BANKS.advanced[3] }
+        };
+
+        // 教師拼音表（動態載入）
+        let TEACHER_PINYIN = {};
+
+        function loadTeacherChapters() {
+            try { return JSON.parse(localStorage.getItem('teacherChapters') || '[]'); }
+            catch(e) { return []; }
+        }
+
+        function mergeTeacherData() {
+            const chapters = loadTeacherChapters();
+            chapters.forEach(ch => {
+                ch.words.forEach(w => WORD_DICTIONARY.add(w));
+                if (ch.pinyin) Object.assign(TEACHER_PINYIN, ch.pinyin);
+            });
+        }
+        mergeTeacherData();
 
         const DIFF_NAME = { beginner: '簡單', intermediate: '中級', advanced: '困難' };
         const NEXT_DIFF = { beginner: 'intermediate', intermediate: 'advanced' };
         const HINTS = { beginner: 1, intermediate: 2, advanced: 3 };
+        const TIME_LIMIT = { beginner: 50, intermediate: 70, advanced: 90 };
+        const POINTS_PER_WORD = 5;
 
-        // ===== 漢語拼音表（含聲調；輕聲不標調） =====
+        // ===== 漢語拼音表 =====
         const PINYIN = {
-            // 簡單
             '大':'dà','小':'xiǎo','日':'rì','月':'yuè','水':'shuǐ','火':'huǒ','左':'zuǒ','右':'yòu',
             '上':'shàng','下':'xià','多':'duō','少':'shǎo','長':'cháng','短':'duǎn','內':'nèi','外':'wài',
             '正':'zhèng','反':'fǎn','出':'chū','入':'rù','明':'míng','暗':'àn','先':'xiān','後':'hòu',
@@ -496,7 +603,6 @@
             '唱':'chàng','歌':'gē','打':'dǎ','球':'qiú','做':'zuò','飯':'fàn','拍':'pāi','手':'shǒu',
             '花':'huā','朵':'duǒ','文':'wén','化':'huà','公':'gōng','平':'píng','門':'mén','口':'kǒu',
             '現':'xiàn','山':'shān','頂':'dǐng','河':'hé','流':'liú','石':'shí','頭':'tou',
-            // 中級
             '得':'dé','失':'shī','星':'xīng','空':'kōng','答':'dá','案':'àn','時':'shí','間':'jiān',
             '音':'yīn','量':'liàng','意':'yì','思':'sī','自':'zì','然':'rán','報':'bào','紙':'zhǐ',
             '新':'xīn','聞':'wén','由':'yóu',
@@ -508,7 +614,6 @@
             '白':'bái','雲':'yún','黑':'hēi','夜':'yè','藍':'lán','天':'tiān','畫':'huà','家':'jiā',
             '翠':'cuì','綠':'lǜ','黃':'huáng','棕':'zōng','樹':'shù','銅':'tóng','顏':'yán',
             '色':'sè','鮮':'xiān','紅':'hóng',
-            // 困難
             '老':'lǎo','虎':'hǔ','獅':'shī','子':'zǐ','象':'xiàng','野':'yě','兔':'tù','松':'sōng',
             '鼠':'shǔ','狐':'hú','狸':'lí','綿':'mián','羊':'yáng','斑':'bān','馬':'mǎ','熊':'xióng',
             '貓':'māo','企':'qǐ','鵝':'é','豚':'tún','鯨':'jīng','魚':'yú','鸚':'yīng','鵡':'wǔ',
@@ -527,16 +632,17 @@
             '夕':'xī','中':'zhōng','重':'chóng','陽':'yáng','至':'zhì','臘':'là','八':'bā',
             '除':'chú','國':'guó','慶':'qìng','聖':'shèng','誕':'dàn','驚':'jīng','蟄':'zhé',
             '立':'lì','雨':'yǔ','分':'fēn','穀':'gǔ','滿':'mǎn','種':'zhòng','暑':'shǔ',
-            '露':'lù','霜':'shuāng','降':'jiàng','處':'chǔ'
+            '露':'lù','霜':'shuāng','降':'jiàng','處':'chǔ',
+            // 新增字
+            '皮':'pí','光':'guāng','園':'yuán','氣':'qì','高':'gāo','葉':'yè','鐵':'tiě'
         };
 
-        // 多音字按詞語定音（覆蓋 PINYIN 單字預設值）
         const WORD_READING = {
             '舉重': { '重': 'zhòng' },
             '重陽': { '重': 'chóng' }
         };
 
-        // ===== DOM 引用區（統一宣告，避免重複） =====
+        // ===== DOM 引用 =====
         const board = document.getElementById('game-board');
         const messageEl = document.getElementById('message');
         const scoreEl = document.getElementById('score');
@@ -549,22 +655,30 @@
         const btnHome = document.getElementById('btn-home');
         const soundBtn = document.getElementById('btn-sound');
         const screenGameEl = document.getElementById('screen-game');
+        const screenStartEl = document.getElementById('screen-start');
 
         // ===== 遊戲狀態 =====
         let currentDiff = null;
         let currentLevel = 0;
-        let sessionLevels = [];   // 本次遊戲隨機抽出的兩套詞語
+        let sessionLevels = [];
+        let gameMode = 'random';      // 'random' | 'category'
+        let currentCategory = null;   // 分類模式時的模塊 ID
         let dictionary = new Set();
         let selectedCards = [];
         let score = 0;
+        let totalScore = 0; // 跨關卡累計
         let hintsLeft = 0;
         let inputLocked = false;
         let clickAnywhereActive = false;
         const matchedWords = new Set();
+        let playerName = '';
+        let gameEnded = false;
 
         // ===== 畫面切換 =====
         function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.screen').forEach(s => {
+                s.classList.remove('active', 'dimmed');
+            });
             document.getElementById(id).classList.add('active');
         }
 
@@ -579,8 +693,6 @@
         }
 
         // ===== 隨機成套選題 =====
-        // 簡單/中級：從 4 套詞庫隨機抽 2 套不同套，對應 2 個關卡
-        // 困難：從 4 套詞庫合併去重後隨機抽 24 詞，分拆為兩關各 12 詞（兩關不重複）
         function pickLevelWords(key) {
             const banks = WORD_BANKS[key];
             if (key === 'advanced') {
@@ -591,31 +703,32 @@
             return [banks[idx[0]], banks[idx[1]]];
         }
 
-        // ===== 計時器：進入關卡重新計時，退出清零 =====
+        // ===== 倒數計時器 =====
         let timerInt = null;
-        let elapsed = 0;
+        let timeLeft = 0;
         function startTimer() {
             stopTimer();
-            elapsed = 0;
-            timerEl.textContent = '⏱ 00:00';
+            timeLeft = TIME_LIMIT[currentDiff];
+            updateTimerDisplay();
+            timerEl.classList.remove('timer-warning');
             timerInt = setInterval(() => {
-                elapsed++;
-                const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
-                const s = String(elapsed % 60).padStart(2, '0');
-                timerEl.textContent = '⏱ ' + m + ':' + s;
+                timeLeft--;
+                updateTimerDisplay();
+                if (timeLeft <= 10) timerEl.classList.add('timer-warning');
+                if (timeLeft <= 0) {
+                    stopTimer();
+                    endLevel('timeout');
+                }
             }, 1000);
         }
-        function stopTimer() {
-            clearInterval(timerInt);
-            timerInt = null;
-        }
-        function resetTimerDisplay() {
-            stopTimer();
-            elapsed = 0;
-            timerEl.textContent = '⏱ 00:00';
+        function stopTimer() { clearInterval(timerInt); timerInt = null; }
+        function updateTimerDisplay() {
+            const m = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+            const s = String(timeLeft % 60).padStart(2, '0');
+            timerEl.textContent = '⏱ ' + m + ':' + s;
         }
 
-        // ===== 音效系統（Web Audio 合成像素風電玩音樂） =====
+        // ===== 音效系統 =====
         let audioCtx = null;
         let soundOn = true;
         const NOTE = {
@@ -640,12 +753,9 @@
             osc.frequency.setValueAtTime(freq, start);
             gain.gain.setValueAtTime(vol, start);
             gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start(start);
-            osc.stop(start + dur);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(start); osc.stop(start + dur);
         }
-
         function bgmScheduler() {
             if (!audioCtx || !soundOn) return;
             while (bgmNext < audioCtx.currentTime + 0.3) {
@@ -655,74 +765,53 @@
                     const b = BASS[Math.floor(bgmStep / 4) % BASS.length];
                     playTone(NOTE[b], bgmNext, 0.32, 'triangle', 0.05);
                 }
-                bgmStep++;
-                bgmNext += STEP;
+                bgmStep++; bgmNext += STEP;
             }
         }
-
         function ensureAudio() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                bgmNext = audioCtx.currentTime + 0.15;
-                bgmStep = 0;
+                bgmNext = audioCtx.currentTime + 0.15; bgmStep = 0;
                 setInterval(bgmScheduler, 120);
             }
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
-
-        // 正確：升調琶音
         function sfxCorrect() {
             if (!audioCtx || !soundOn) return;
             const t = audioCtx.currentTime;
             [NOTE.C5, NOTE.E5, NOTE.G5, NOTE.C6].forEach((f, i) => playTone(f, t + i * 0.09, 0.18, 'square', 0.09));
         }
-
-        // 錯誤：降調滑音
         function sfxWrong() {
             if (!audioCtx || !soundOn) return;
             const t = audioCtx.currentTime;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
             osc.type = 'square';
             osc.frequency.setValueAtTime(392, t);
             osc.frequency.exponentialRampToValueAtTime(130, t + 0.35);
             gain.gain.setValueAtTime(0.1, t);
             gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start(t);
-            osc.stop(t + 0.35);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(t); osc.stop(t + 0.35);
         }
-
-        // 通關：勝利音階
         function sfxWin() {
             if (!audioCtx || !soundOn) return;
             const t = audioCtx.currentTime;
             [NOTE.C5, NOTE.E5, NOTE.G5, NOTE.C6, NOTE.E6].forEach((f, i) => playTone(f, t + i * 0.12, 0.3, 'square', 0.1));
         }
-
-        // 提示音
         function sfxHint() {
             if (!audioCtx || !soundOn) return;
             const t = audioCtx.currentTime;
             [NOTE.A5, NOTE.C6].forEach((f, i) => playTone(f, t + i * 0.1, 0.15, 'triangle', 0.09));
         }
-
-        // 瀏覽器政策：首次互動後才能啟動音訊
         document.addEventListener('pointerdown', ensureAudio, { once: true });
-
         soundBtn.addEventListener('click', () => {
             soundOn = !soundOn;
             soundBtn.textContent = soundOn ? '♪ ON' : '♪ OFF';
-            if (soundOn) {
-                ensureAudio();
-                if (audioCtx) bgmNext = audioCtx.currentTime + 0.15;
-            } else if (audioCtx) {
-                audioCtx.suspend();
-            }
+            if (soundOn) { ensureAudio(); if (audioCtx) bgmNext = audioCtx.currentTime + 0.15; }
+            else if (audioCtx) { audioCtx.suspend(); }
         });
 
-        // ===== 載入關卡（唯一啟動入口） =====
+        // ===== 載入關卡 =====
         function loadLevel() {
             const cfg = boardClassOf(currentDiff);
             const words = sessionLevels[currentLevel];
@@ -733,6 +822,7 @@
             matchedWords.clear();
             inputLocked = false;
             clickAnywhereActive = false;
+            gameEnded = false;
 
             board.className = cfg;
             board.innerHTML = '';
@@ -741,13 +831,10 @@
             btnHome.classList.remove('show');
             messageEl.innerText = '點選兩張字卡，照詞語順序組成詞語！';
             hudLevelEl.innerText = '第 ' + (currentLevel + 1) + ' 關 / 共 2 關';
-            scoreEl.innerText = '得分：0 / ' + words.length;
+            scoreEl.innerText = '積分：' + totalScore;
             updateHintBtn();
             startTimer();
 
-            // 字卡由詞語逐詞展開（每詞 2 字），保證每張卡都能配對；多音字按所屬詞語定音
-            // 每張卡綁定所屬詞語（word / wordId），配對時僅接受同一詞語的兩張卡，
-            // 避免困難難度下字元重複時因任意配對造成死鎖（剩餘卡片無法成詞）。
             const cardsSpec = [];
             words.forEach((word, wi) => {
                 [...word].forEach(ch => {
@@ -775,8 +862,10 @@
         }
 
         function startDifficulty(key) {
+            gameMode = 'random';
             currentDiff = key;
             currentLevel = 0;
+            totalScore = 0;
             sessionLevels = pickLevelWords(key);
             showScreen('screen-game');
             loadLevel();
@@ -787,9 +876,8 @@
             hintBtn.classList.toggle('disabled', hintsLeft <= 0);
         }
 
-        // 單擊選中，再次單擊取消選中
         function selectCard(card) {
-            if (inputLocked) return;
+            if (inputLocked || gameEnded) return;
             if (card.classList.contains('matched')) return;
             if (card.classList.contains('selected')) {
                 card.classList.remove('selected');
@@ -799,59 +887,85 @@
             if (selectedCards.length >= 2) return;
             card.classList.add('selected');
             selectedCards.push(card);
+            if (selectedCards.length === 2) checkMatch();
+        }
 
-            if (selectedCards.length === 2) {
-                checkMatch();
+        // ===== 靈活配對 + 防死鎖 =====
+        function getCharPinyin(ch, word) {
+            return (WORD_READING[word] && WORD_READING[word][ch]) || PINYIN[ch] || TEACHER_PINYIN[ch] || '';
+        }
+
+        // 回溯法檢查剩餘字卡是否存在完美配對
+        function hasPerfectMatching(chars) {
+            if (chars.length === 0) return true;
+            if (chars.length % 2 !== 0) return false;
+            const first = chars[0];
+            for (let i = 1; i < chars.length; i++) {
+                const w1 = first + chars[i];
+                const w2 = chars[i] + first;
+                if (WORD_DICTIONARY.has(w1) || WORD_DICTIONARY.has(w2)) {
+                    const rest = chars.filter((_, idx) => idx !== 0 && idx !== i);
+                    if (hasPerfectMatching(rest)) return true;
+                }
             }
+            return false;
         }
 
         function checkMatch() {
             const [c1, c2] = selectedCards;
-            // 嚴格按照詞語構成順序：第一張＋第二張必須與詞語一致（如先「大」後「小」）
             const word = c1.dataset.char + c2.dataset.char;
             const total = sessionLevels[currentLevel].length;
 
-            // 僅接受兩張卡來自同一詞語（wordId 相同）且順序正確，
-            // 否則困難難度下共用字元可能被任意配對而導致死鎖。
-            const isCorrectPair = c1.dataset.wordId === c2.dataset.wordId && c1.dataset.word === word;
+            // 靈活規則：兩字組成詞語字典中的任一詞語即可
+            const isValidWord = WORD_DICTIONARY.has(word);
 
-            if (isCorrectPair || isReasonable(word)) {
-                // 成功配對：立刻移除 selected 並加上 matched
-                c1.classList.remove('selected');
-                c2.classList.remove('selected');
-                c1.classList.add('matched');
-                c2.classList.add('matched');
+            if (isValidWord) {
+                // 防死鎖：移除這兩張後剩餘卡片必須仍可完美配對
+                const remainingChars = [...board.querySelectorAll('.card')]
+                    .filter(c => !c.classList.contains('matched') && c !== c1 && c !== c2)
+                    .map(c => c.dataset.char);
+                const solvable = hasPerfectMatching(remainingChars);
+
+                if (!solvable) {
+                    inputLocked = true;
+                    c1.classList.add('wrong'); c2.classList.add('wrong');
+                    sfxWrong();
+                    setTimeout(() => {
+                        c1.classList.remove('selected', 'wrong');
+                        c2.classList.remove('selected', 'wrong');
+                        inputLocked = false;
+                    }, 500);
+                    messageEl.innerText = '這樣配會讓其他字卡無法成詞哦，試試其他組合！';
+                    selectedCards = [];
+                    return;
+                }
+
+                // 成功配對
+                c1.classList.remove('selected'); c2.classList.remove('selected');
+                c1.classList.add('matched'); c2.classList.add('matched');
                 score++;
+                totalScore += POINTS_PER_WORD;
                 matchedWords.add(word);
-                scoreEl.innerText = '得分：' + score + ' / ' + total;
+                scoreEl.innerText = '積分：' + totalScore;
 
                 if (score === total) {
-                    stopTimer();   // 通關後停止計時，避免計時器在完成畫面持續跳動
+                    stopTimer();
+                    gameEnded = true;
                     if (currentLevel < sessionLevels.length - 1) {
-                        messageEl.innerText = '第 ' + (currentLevel + 1) + ' 關完成！';
-                        btnNext.classList.add('show');
-                        sfxWin();
+                        showResult('success-level', '挑戰成功！', '本關完成！準備進入下一關。');
                     } else if (currentDiff !== 'advanced') {
-                        messageEl.innerText = '恭喜通關！';
-                        upgradeTargetEl.textContent = '升級至「' + DIFF_NAME[NEXT_DIFF[currentDiff]] + '」';
-                        btnUpgrade.classList.add('show');
-                        btnHome.classList.add('show');
-                        sfxWin();
+                        showResult('success-upgrade', '挑戰成功！', '恭喜通過所有關卡！');
                     } else {
-                        messageEl.innerText = '恭喜完成所有關卡，你太棒啦！（點擊畫面任意處返回主界面）';
-                        sfxWin();
-                        // 延後啟用，避免本次點擊直接觸發返回
-                        setTimeout(() => { clickAnywhereActive = true; }, 0);
+                        showResult('success-final', '全部通關！', '你太棒了，完成了所有關卡！');
                     }
+                    sfxWin();
                 } else {
-                    messageEl.innerText = '太棒了！組成了：' + word;
+                    messageEl.innerText = '太棒了！組成了：' + word + '（+' + POINTS_PER_WORD + '分）';
                     sfxCorrect();
                 }
             } else {
-                // 配詞錯誤（順序錯誤或不成詞）：震動 + 變紅，音效降調
                 inputLocked = true;
-                c1.classList.add('wrong');
-                c2.classList.add('wrong');
+                c1.classList.add('wrong'); c2.classList.add('wrong');
                 sfxWrong();
                 setTimeout(() => {
                     c1.classList.remove('selected', 'wrong');
@@ -863,76 +977,565 @@
             selectedCards = [];
         }
 
-        // 簡易邏輯擴展：可加入額外接受的組合
-        // 注意：額外組合請勿耗用關卡詞語需要的字卡，否則可能無法集滿分數
-        function isReasonable(word) {
-            const reasonable = [];
-            return reasonable.includes(word);
-        }
-
-        // ===== 提示：閃爍標出可組成詞語的兩張剩餘字卡 =====
+        // ===== 提示 =====
         hintBtn.addEventListener('click', () => {
-            if (hintsLeft <= 0 || inputLocked) return;
+            if (hintsLeft <= 0 || inputLocked || gameEnded) return;
             const unmatched = [...board.querySelectorAll('.card')].filter(c => !c.classList.contains('matched'));
-            for (const word of dictionary) {
-                if (matchedWords.has(word)) continue;
-                const a = word[0], b = word[1];
-                // 找出同一詞語實例（wordId 相同）的兩張未配對卡，避免提示到錯誤組合
-                const wordCards = unmatched.filter(c => c.dataset.word === word);
-                const ca = wordCards.find(c => c.dataset.char === a);
-                const cb = wordCards.find(c => c.dataset.char === b && c !== ca);
-                if (ca && cb) {
-                    hintsLeft--;
-                    updateHintBtn();
-                    sfxHint();
-                    [ca, cb].forEach(c => {
-                        c.classList.add('hinted');
-                        setTimeout(() => c.classList.remove('hinted'), 2000);
-                    });
-                    return;
+            for (let i = 0; i < unmatched.length; i++) {
+                for (let j = i + 1; j < unmatched.length; j++) {
+                    const ca = unmatched[i], cb = unmatched[j];
+                    const w1 = ca.dataset.char + cb.dataset.char;
+                    const w2 = cb.dataset.char + ca.dataset.char;
+                    if (WORD_DICTIONARY.has(w1) || WORD_DICTIONARY.has(w2)) {
+                        // 檢查此配對後是否仍可解
+                        const rest = unmatched.filter((_, k) => k !== i && k !== j).map(c => c.dataset.char);
+                        if (hasPerfectMatching(rest)) {
+                            hintsLeft--;
+                            updateHintBtn();
+                            sfxHint();
+                            [ca, cb].forEach(c => {
+                                c.classList.add('hinted');
+                                setTimeout(() => c.classList.remove('hinted'), 2000);
+                            });
+                            return;
+                        }
+                    }
                 }
             }
         });
 
+        // ===== 結束關卡 =====
+        function endLevel(reason) {
+            gameEnded = true;
+            screenGameEl.classList.add('dimmed');
+            if (reason === 'timeout') {
+                showResult('timeout', '時間到！', '倒數計時結束');
+            }
+        }
+
+        // ===== 結果彈窗 =====
+        function showResult(type, title, msg) {
+            const modal = document.getElementById('modal-result');
+            document.getElementById('result-title').innerText = title;
+            document.getElementById('result-score').innerText = '最終得分：' + totalScore;
+            document.getElementById('result-msg').innerText = msg;
+
+            const btnNext = document.getElementById('result-next');
+            const btnUpgrade = document.getElementById('result-upgrade');
+            const btnHome = document.getElementById('result-home');
+            btnNext.style.display = 'none';
+            btnUpgrade.style.display = 'none';
+
+            if (gameMode === 'category') {
+                // 分類模式：無升級路徑
+                if (type === 'success-level') {
+                    btnNext.style.display = 'flex';
+                    modal.classList.add('show');
+                } else {
+                    saveScore();
+                    showRanking();
+                }
+            } else if (type === 'success-level') {
+                btnNext.style.display = 'flex';
+            } else if (type === 'success-upgrade') {
+                btnUpgrade.style.display = 'flex';
+            } else {
+                // timeout 或 success-final：記錄成績並顯示排行
+                saveScore();
+                showRanking();
+                return;
+            }
+            modal.classList.add('show');
+        }
+
+        document.getElementById('result-next').addEventListener('click', () => {
+            document.getElementById('modal-result').classList.remove('show');
+            screenGameEl.classList.remove('dimmed');
+            currentLevel++;
+            loadLevel();
+        });
+        document.getElementById('result-upgrade').addEventListener('click', () => {
+            document.getElementById('modal-result').classList.remove('show');
+            screenGameEl.classList.remove('dimmed');
+            startDifficulty(NEXT_DIFF[currentDiff]);
+        });
+        document.getElementById('result-home').addEventListener('click', () => {
+            document.getElementById('modal-result').classList.remove('show');
+            goHome();
+        });
+
+        // ===== 暱稱 =====
+        function askNickname(callback) {
+            const modal = document.getElementById('modal-nickname');
+            const input = document.getElementById('nickname-input');
+            input.value = playerName || '';
+            modal.classList.add('show');
+            setTimeout(() => input.focus(), 100);
+            const onConfirm = () => {
+                const name = input.value.trim();
+                if (name.length === 0 || name.length > 8) {
+                    input.style.borderColor = '#e53935';
+                    return;
+                }
+                playerName = name;
+                modal.classList.remove('show');
+                document.getElementById('nickname-confirm').removeEventListener('click', onConfirm);
+                callback();
+            };
+            document.getElementById('nickname-confirm').addEventListener('click', onConfirm);
+            const onSkip = () => {
+                playerName = '玩家';
+                modal.classList.remove('show');
+                document.getElementById('nickname-confirm').removeEventListener('click', onConfirm);
+                document.getElementById('nickname-skip').removeEventListener('click', onSkip);
+                callback();
+            };
+            document.getElementById('nickname-skip').addEventListener('click', onSkip);
+            input.addEventListener('keydown', e => { if (e.key === 'Enter') onConfirm(); });
+        }
+
+        // ===== 週排行榜 =====
+        function getWeekStart() {
+            const now = new Date();
+            const day = now.getDay(); // 0=日
+            const diff = day === 0 ? 6 : day - 1; // 週一為起點
+            const monday = new Date(now);
+            monday.setDate(now.getDate() - diff);
+            monday.setHours(0, 0, 0, 0);
+            return monday.getTime();
+        }
+
+        function saveScore() {
+            if (!playerName) return;
+            const record = { name: playerName, score: totalScore, time: Date.now() };
+            let records = [];
+            try { records = JSON.parse(localStorage.getItem('wordMatchRanking') || '[]'); } catch(e) {}
+            records.push(record);
+            // 只保留本週
+            const weekStart = getWeekStart();
+            records = records.filter(r => r.time >= weekStart);
+            localStorage.setItem('wordMatchRanking', JSON.stringify(records));
+        }
+
+        function showRanking() {
+            const modal = document.getElementById('modal-ranking');
+            const listEl = document.getElementById('ranking-list');
+            let records = [];
+            try { records = JSON.parse(localStorage.getItem('wordMatchRanking') || '[]'); } catch(e) {}
+            const weekStart = getWeekStart();
+            records = records.filter(r => r.time >= weekStart)
+                             .sort((a, b) => b.score - a.score)
+                             .slice(0, 10);
+            if (records.length === 0) {
+                listEl.innerHTML = '<div class="rank-empty">本週尚無成績，快來挑戰吧！</div>';
+            } else {
+                listEl.innerHTML = records.map((r, i) => {
+                    const isMe = r.name === playerName && r.score === totalScore && Math.abs(r.time - Date.now()) < 5000;
+                    return '<div class="rank-row' + (isMe ? ' me' : '') + '">' +
+                        '<span class="rk">' + (i + 1) + '</span>' +
+                        '<span class="nm">' + escapeHtml(r.name) + '</span>' +
+                        '<span class="sc">' + r.score + ' 分</span></div>';
+                }).join('');
+            }
+            modal.classList.add('show');
+        }
+
+        function escapeHtml(s) {
+            const div = document.createElement('div');
+            div.textContent = s;
+            return div.innerHTML;
+        }
+
+        document.getElementById('ranking-close').addEventListener('click', () => {
+            document.getElementById('modal-ranking').classList.remove('show');
+            if (gameMode === 'category') {
+                buildModuleScreen();
+                showScreen('screen-module');
+            } else {
+                goHome();
+            }
+        });
+
+        // ===== 詞語列表 =====
+        function getWordPinyin(word) {
+            return [...word].map(ch => getCharPinyin(ch, word)).join(' ');
+        }
+
+        function buildVocabList() {
+            const sections = [
+                { title: '簡單', words: [...new Set(WORD_BANKS.beginner.flat())] },
+                { title: '中級', words: [...new Set(WORD_BANKS.intermediate.flat())] },
+                { title: '困難', words: [...new Set(WORD_BANKS.advanced.flat())] },
+                { title: '靈活新增詞', words: BONUS_WORDS }
+            ];
+            const teacherChapters = loadTeacherChapters();
+            teacherChapters.forEach(ch => {
+                sections.push({ title: '教師：' + ch.name, words: ch.words });
+            });
+            let total = 0;
+            let html = '';
+            for (const sec of sections) {
+                total += sec.words.length;
+                html += '<div class="vocab-section"><h3>' + sec.title + '（' + sec.words.length + '）</h3><div class="vocab-list">';
+                for (const w of sec.words) {
+                    html += '<div class="vocab-item"><span class="w">' + w + '</span><span class="p">' + getWordPinyin(w) + '</span></div>';
+                }
+                html += '</div></div>';
+            }
+            document.getElementById('vocab-count').innerText = total;
+            document.getElementById('vocab-content').innerHTML = html;
+        }
+
+        document.getElementById('house').addEventListener('click', () => {
+            openTeacherLogin();
+        });
+        document.getElementById('vocab-close').addEventListener('click', () => {
+            document.getElementById('modal-vocab').classList.remove('show');
+        });
+
+        // ===== 模塊選擇畫面 =====
+        function getModuleList() {
+            const builtin = Object.entries(CATEGORY_BANKS).map(([id, cat]) => ({
+                id, name: cat.name, icon: cat.icon, type: 'builtin', words: cat.words
+            }));
+            const teacher = loadTeacherChapters().map(ch => ({
+                id: ch.id, name: ch.name, icon: '📚', type: 'teacher', words: ch.words
+            }));
+            return [...builtin, ...teacher];
+        }
+
+        function buildModuleScreen() {
+            const list = document.getElementById('module-list');
+            const modules = getModuleList();
+            list.innerHTML = modules.map(m => {
+                const cls = m.type === 'teacher' ? 'cat-teacher' : 'cat-' + m.id;
+                return '<button class="pixel-btn module-btn ' + cls + '" data-module-id="' + m.id + '" data-module-type="' + m.type + '">' +
+                    '<span class="module-icon">' + m.icon + '</span>' + m.name +
+                    '<span>' + m.words.length + ' 詞</span></button>';
+            }).join('');
+            list.querySelectorAll('.module-btn').forEach(btn => {
+                btn.addEventListener('click', () => startCategoryGame(btn.dataset.moduleId, btn.dataset.moduleType));
+            });
+        }
+
+        function startCategoryGame(moduleId, moduleType) {
+            const modules = getModuleList();
+            const mod = modules.find(m => m.id === moduleId);
+            if (!mod) return;
+            gameMode = 'category';
+            currentCategory = moduleId;
+            currentDiff = 'intermediate';
+            currentLevel = 0;
+            totalScore = 0;
+            const pool = shuffle([...new Set(mod.words)]);
+            const perLevel = 10;
+            if (pool.length >= perLevel * 2) {
+                sessionLevels = [pool.slice(0, perLevel), pool.slice(perLevel, perLevel * 2)];
+            } else if (pool.length >= perLevel) {
+                sessionLevels = [pool.slice(0, perLevel), shuffle(pool).slice(0, perLevel)];
+            } else {
+                sessionLevels = [pool];
+            }
+            sessionLevels.flat().forEach(w => WORD_DICTIONARY.add(w));
+            showScreen('screen-game');
+            loadLevel();
+        }
+
+        // ===== 教師入口 =====
+        const TEACHER_PASSWORD = 'teacher123';
+
+        function openTeacherLogin() {
+            const modal = document.getElementById('modal-teacher-login');
+            const input = document.getElementById('teacher-password-input');
+            const errEl = document.getElementById('teacher-login-error');
+            input.value = '';
+            errEl.textContent = '';
+            input.style.borderColor = '#ccc';
+            modal.classList.add('show');
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function handleTeacherLogin() {
+            const input = document.getElementById('teacher-password-input');
+            const errEl = document.getElementById('teacher-login-error');
+            if (input.value === TEACHER_PASSWORD) {
+                document.getElementById('modal-teacher-login').classList.remove('show');
+                openTeacherPanel();
+            } else {
+                errEl.textContent = '密碼錯誤，請重試';
+                input.style.borderColor = '#e53935';
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        function openTeacherPanel() {
+            renderChapterList();
+            resetChapterForm();
+            document.getElementById('modal-teacher-panel').classList.add('show');
+        }
+
+        function resetChapterForm() {
+            document.getElementById('chapter-form-title').textContent = '新增章節';
+            document.getElementById('chapter-edit-id').value = '';
+            document.getElementById('chapter-name-input').value = '';
+            document.getElementById('chapter-words-input').value = '';
+            document.getElementById('chapter-pinyin-area').innerHTML = '';
+            document.getElementById('chapter-error').textContent = '';
+        }
+
+        function renderChapterList() {
+            const chapters = loadTeacherChapters();
+            const listEl = document.getElementById('chapter-list');
+            if (chapters.length === 0) {
+                listEl.innerHTML = '<p style="color:#999;text-align:center;padding:12px;">尚無章節，請在下方新增</p>';
+                return;
+            }
+            listEl.innerHTML = chapters.map(ch =>
+                '<div class="chapter-row"><span class="ch-name">' + escapeHtml(ch.name) + '（' + ch.words.length + ' 詞）</span>' +
+                '<span><button class="pixel-btn btn-small" data-edit="' + ch.id + '" style="font-size:12px;padding:6px 10px;">編輯</button>' +
+                '<button class="pixel-btn btn-small" data-delete="' + ch.id + '" style="font-size:12px;padding:6px 10px;background:#e53935;margin-left:6px;">刪除</button></span></div>'
+            ).join('');
+            listEl.querySelectorAll('[data-edit]').forEach(btn => {
+                btn.addEventListener('click', () => editChapter(btn.dataset.edit));
+            });
+            listEl.querySelectorAll('[data-delete]').forEach(btn => {
+                btn.addEventListener('click', () => deleteChapter(btn.dataset.delete));
+            });
+        }
+
+        function checkMissingPinyin() {
+            const wordsText = document.getElementById('chapter-words-input').value;
+            const words = wordsText.split(/[\n,，\s]+/).map(w => w.trim()).filter(w => w.length === 2);
+            const editId = document.getElementById('chapter-edit-id').value;
+            const existingPinyin = editId ? (loadTeacherChapters().find(c => c.id === editId) || {}).pinyin || {} : {};
+            const missing = {};
+            words.forEach(w => {
+                [...w].forEach(ch => {
+                    if (!PINYIN[ch] && !TEACHER_PINYIN[ch] && !existingPinyin[ch]) {
+                        missing[ch] = existingPinyin[ch] || '';
+                    }
+                });
+            });
+            const area = document.getElementById('chapter-pinyin-area');
+            const chars = Object.keys(missing);
+            if (chars.length === 0) {
+                area.innerHTML = '';
+            } else {
+                area.innerHTML = '<p style="font-size:13px;color:#fb8c00;">以下字缺少拼音，請輸入（可不填）：</p>' +
+                    chars.map(ch => '<label>' + ch + '：<input type="text" data-pinyin-char="' + ch + '" maxlength="8" placeholder="pīn"></label>').join('');
+            }
+        }
+
+        function handleChapterGenerate() {
+            const name = document.getElementById('chapter-name-input').value.trim();
+            const wordsText = document.getElementById('chapter-words-input').value;
+            const editId = document.getElementById('chapter-edit-id').value;
+            const errEl = document.getElementById('chapter-error');
+            errEl.textContent = '';
+
+            if (!name) { errEl.textContent = '請輸入章節名稱'; return; }
+            if (name.length > 20) { errEl.textContent = '章節名稱最多 20 字'; return; }
+
+            const words = wordsText.split(/[\n,，\s]+/).map(w => w.trim()).filter(w => w.length === 2);
+            if (words.length < 4) { errEl.textContent = '至少需要 4 個詞語（每詞 2 字）'; return; }
+
+            const uniqueWords = [...new Set(words)];
+            const pinyinInputs = document.querySelectorAll('#chapter-pinyin-area input[data-pinyin-char]');
+            const pinyin = {};
+            pinyinInputs.forEach(inp => { if (inp.value.trim()) pinyin[inp.dataset.pinyinChar] = inp.value.trim(); });
+
+            const chapters = loadTeacherChapters();
+            if (editId) {
+                const idx = chapters.findIndex(ch => ch.id === editId);
+                if (idx >= 0) {
+                    chapters[idx] = { ...chapters[idx], name, words: uniqueWords, pinyin, updatedAt: Date.now() };
+                }
+            } else {
+                chapters.push({ id: 'ch_' + Date.now(), name, words: uniqueWords, pinyin, createdAt: Date.now(), updatedAt: Date.now() });
+            }
+            localStorage.setItem('teacherChapters', JSON.stringify(chapters));
+            mergeTeacherData();
+            renderChapterList();
+            resetChapterForm();
+            buildModuleScreen();
+            errEl.style.color = '#43a047';
+            errEl.textContent = '✅ 章節「' + name + '」已' + (editId ? '更新' : '創建') + '！';
+            setTimeout(() => { errEl.textContent = ''; errEl.style.color = '#e53935'; }, 3000);
+        }
+
+        function editChapter(chId) {
+            const ch = loadTeacherChapters().find(c => c.id === chId);
+            if (!ch) return;
+            document.getElementById('chapter-form-title').textContent = '編輯章節：' + ch.name;
+            document.getElementById('chapter-edit-id').value = ch.id;
+            document.getElementById('chapter-name-input').value = ch.name;
+            document.getElementById('chapter-words-input').value = ch.words.join('\n');
+            document.getElementById('chapter-error').textContent = '';
+            checkMissingPinyin();
+        }
+
+        function deleteChapter(chId) {
+            if (!confirm('確定刪除此章節？')) return;
+            let chapters = loadTeacherChapters().filter(ch => ch.id !== chId);
+            localStorage.setItem('teacherChapters', JSON.stringify(chapters));
+            renderChapterList();
+            buildModuleScreen();
+        }
+
+        // ===== 地圖模式 =====
+        // 熱點定義（百分比座標，基於 mapp.png 1688×1152）
+        const HK_MAP_HOTSPOTS = [
+            { region: 'newterritories', name: '新界',     x: 43, y: 26, w: 26, h: 28 },
+            { region: 'newterritories', name: '屯門元朗', x: 25, y: 42, w: 18, h: 16 },
+            { region: 'newterritories', name: '大埔北區', x: 63, y: 24, w: 20, h: 18 },
+            { region: 'newterritories', name: '沙田西貢', x: 66, y: 56, w: 15, h: 20 },
+            { region: 'kowloon',        name: '九龍',     x: 53, y: 55, w: 13, h: 13 },
+            { region: 'hongkong',       name: '港島',     x: 59, y: 76, w: 21, h: 16 },
+            { region: 'outlying',       name: '大嶼山',   x: 18, y: 73, w: 25, h: 26 },
+            { region: 'outlying',       name: '長洲南丫', x: 48, y: 87, w: 12, h: 15 }
+        ];
+
+        const HK_REGIONS = {
+            'hongkong': { name: '港島', emoji: '🏙️', color: '#45a9d4', eggs: [
+                { word: '山頂', trivia: '太平山頂海拔552米，可俯瞰整個維多利亞港。' },
+                { word: '海浪', trivia: '港島南面的大浪灣是香港著名衝浪勝地。' },
+                { word: '海風', trivia: '港島沿岸海風清爽，是夏日消暑的好去處。' }
+            ]},
+            'kowloon': { name: '九龍', emoji: '🏮', color: '#f2a45f', eggs: [
+                { word: '星光', trivia: '星光大道位於尖沙咀，展示香港電影人的手印。' },
+                { word: '廟街', trivia: '廟街夜市有百年歷史，是九龍最著名的露天市場。' },
+                { word: '獅子', trivia: '獅子山象徵香港人同舟共濟的精神。' }
+            ]},
+            'newterritories': { name: '新界', emoji: '🌾', color: '#b57fc4', eggs: [
+                { word: '山水', trivia: '新界有豐富的山水風景，是行山愛好者的天堂。' },
+                { word: '青山', trivia: '青山是新界西部的最高峰，海拔583米。' },
+                { word: '田野', trivia: '新界保留了香港為數不多的農田和濕地。' }
+            ]},
+            'outlying': { name: '離島', emoji: '🏝️', color: '#ecd06f', eggs: [
+                { word: '海豚', trivia: '中華白海豚常在大嶼山附近水域出沒。' },
+                { word: '椰子', trivia: '南丫島保留著漁村風貌，是離島度假勝地。' },
+                { word: '海風', trivia: '離島海風徐徐，是遠離城市喧囂的好地方。' }
+            ]}
+        };
+
+        let currentEggRegion = null;
+
+        function buildHKMap() {
+            const container = document.getElementById('hk-map');
+            const discovered = JSON.parse(localStorage.getItem('mapDiscovered') || '[]');
+            container.innerHTML = '<img src="mapp.png" alt="香港地圖" draggable="false">' +
+                HK_MAP_HOTSPOTS.map(hs =>
+                    '<div class="map-hotspot" data-region="' + hs.region + '" title="' + hs.name + '" ' +
+                    'style="left:' + hs.x + '%; top:' + hs.y + '%; width:' + hs.w + '%; height:' + hs.h + '%;"></div>'
+                ).join('');
+            container.querySelectorAll('.map-hotspot').forEach(el => {
+                if (discovered.includes(el.dataset.region)) el.classList.add('discovered');
+                el.addEventListener('click', () => showMapEgg(el.dataset.region));
+            });
+        }
+
+        function showMapEgg(regionId) {
+            const region = HK_REGIONS[regionId];
+            currentEggRegion = regionId;
+            const egg = region.eggs[Math.floor(Math.random() * region.eggs.length)];
+            const info = document.getElementById('map-egg-info');
+            info.innerHTML =
+                '<p style="font-size:24px;font-weight:bold;color:' + region.color + ';">' + region.emoji + ' ' + region.name + '：' + egg.word + '</p>' +
+                '<p style="color:#7986cb;font-family:monospace;font-size:14px;">' + getWordPinyin(egg.word) + '</p>' +
+                '<p style="margin-top:8px;color:#555;font-size:15px;">💡 ' + egg.trivia + '</p>';
+
+            const discovered = JSON.parse(localStorage.getItem('mapDiscovered') || '[]');
+            if (!discovered.includes(regionId)) {
+                discovered.push(regionId);
+                localStorage.setItem('mapDiscovered', JSON.stringify(discovered));
+                document.querySelectorAll('.map-hotspot[data-region="' + regionId + '"]').forEach(c => c.classList.add('discovered'));
+            }
+        }
+
         // ===== 按鈕事件 =====
-        document.getElementById('btn-start').addEventListener('click', () => showScreen('screen-difficulty'));
+        document.getElementById('btn-start').addEventListener('click', () => {
+            askNickname(() => {
+                buildModuleScreen();
+                showScreen('screen-module');
+            });
+        });
 
         document.querySelectorAll('.diff-list .pixel-btn').forEach(btn => {
             btn.addEventListener('click', () => startDifficulty(btn.dataset.diff));
         });
 
-        // ← 選單：退出遊戲，計時清零
         document.getElementById('btn-back').addEventListener('click', () => {
             clickAnywhereActive = false;
-            resetTimerDisplay();
-            showScreen('screen-difficulty');
+            stopTimer();
+            showScreen(gameMode === 'category' ? 'screen-module' : 'screen-difficulty');
         });
 
-        btnNext.addEventListener('click', () => {
-            currentLevel++;
-            loadLevel();
-        });
-
-        // 難度升級：簡單→中級、中級→困難
-        btnUpgrade.addEventListener('click', () => {
-            startDifficulty(NEXT_DIFF[currentDiff]);
-        });
-
-        // 返回主界面（開始界面）
+        btnNext.addEventListener('click', () => { currentLevel++; loadLevel(); });
+        btnUpgrade.addEventListener('click', () => { startDifficulty(NEXT_DIFF[currentDiff]); });
         btnHome.addEventListener('click', goHome);
 
         function goHome() {
             clickAnywhereActive = false;
-            resetTimerDisplay();
-            showScreen('screen-start');
+            stopTimer();
+            screenGameEl.classList.remove('dimmed');
+            if (gameMode === 'category') {
+                buildModuleScreen();
+                showScreen('screen-module');
+            } else {
+                showScreen('screen-start');
+            }
         }
 
-        // 困難難度全破後：點擊任意處回主界面
         screenGameEl.addEventListener('click', () => {
             if (clickAnywhereActive) goHome();
         });
 
-        // ===== 像素點陣圖渲染（box-shadow 畫素） =====
+        // 點擊 modal 背景關閉（僅詞語列表）
+        document.getElementById('modal-vocab').addEventListener('click', e => {
+            if (e.target.id === 'modal-vocab') e.currentTarget.classList.remove('show');
+        });
+
+        // ===== 新增元素事件綁定 =====
+        // 詞語列表小按鈕
+        document.getElementById('btn-vocab-small').addEventListener('click', () => {
+            buildVocabList();
+            document.getElementById('modal-vocab').classList.add('show');
+        });
+        // 地圖按鈕
+        document.getElementById('btn-map').addEventListener('click', () => {
+            buildHKMap();
+            document.getElementById('map-egg-info').innerHTML = '';
+            document.getElementById('modal-map').classList.add('show');
+        });
+        document.getElementById('map-close').addEventListener('click', () => {
+            document.getElementById('modal-map').classList.remove('show');
+        });
+        // 模塊選擇：隨機詞語按鈕
+        document.getElementById('btn-random-words').addEventListener('click', () => {
+            showScreen('screen-difficulty');
+        });
+        // 模塊選擇：返回按鈕
+        document.getElementById('btn-module-back').addEventListener('click', () => {
+            showScreen('screen-start');
+        });
+        // 教師登入
+        document.getElementById('teacher-login-confirm').addEventListener('click', handleTeacherLogin);
+        document.getElementById('teacher-login-cancel').addEventListener('click', () => {
+            document.getElementById('modal-teacher-login').classList.remove('show');
+        });
+        document.getElementById('teacher-password-input').addEventListener('keydown', e => {
+            if (e.key === 'Enter') handleTeacherLogin();
+        });
+        // 教師面板
+        document.getElementById('teacher-panel-close').addEventListener('click', () => {
+            document.getElementById('modal-teacher-panel').classList.remove('show');
+        });
+        document.getElementById('chapter-generate').addEventListener('click', handleChapterGenerate);
+        document.getElementById('chapter-reset').addEventListener('click', resetChapterForm);
+        document.getElementById('chapter-words-input').addEventListener('input', checkMissingPinyin);
+
+        // ===== 像素點陣圖渲染 =====
         function renderPixelArt(el, map, palette, pixelSize) {
             const shadows = [];
             map.forEach((row, y) => {
@@ -947,65 +1550,32 @@
             el.style.boxShadow = shadows.join(',');
         }
 
-        // 經典 Windows 箭頭光標（K=黑輪廓 W=白色）
         const CURSOR_MAP = [
-            'K.........',
-            'KK........',
-            'KWK.......',
-            'KWWK......',
-            'KWWWK.....',
-            'KWWWWK....',
-            'KWWWWWK...',
-            'KWWWWWWK..',
-            'KWWWWWWWK.',
-            'KWWWWWWWWK',
-            'KWWWWWKKKK',
-            'KWWKWWK...',
-            'KK.KWWK...',
-            'K...KWWK..',
-            '.....KWK..',
-            '......KK..'
+            'K.........','KK........','KWK.......','KWWK......','KWWWK.....',
+            'KWWWWK....','KWWWWWK...','KWWWWWWK..','KWWWWWWWK.','KWWWWWWWWK',
+            'KWWWWWKKKK','KWWKWWK...','KK.KWWK...','K...KWWK..','.....KWK..','......KK..'
         ];
-        renderPixelArt(document.getElementById('pixel-cursor'), CURSOR_MAP,
-            { K: '#14142b', W: '#ffffff' }, 6);
+        renderPixelArt(document.getElementById('pixel-cursor'), CURSOR_MAP, { K: '#14142b', W: '#ffffff' }, 6);
 
-        // 像素小房子（K=輪廓 R=屋頂 W=牆 G=窗 D=門）
         const HOUSE_MAP = [
-            '.......KK.......',
-            '......KRRK......',
-            '.....KRRRRK.....',
-            '....KRRRRRRK....',
-            '...KRRRRRRRRK...',
-            '..KRRRRRRRRRRK..',
-            '.KRRRRRRRRRRRRK.',
-            'KRRRRRRRRRRRRRRK',
-            '.KWWWWWWWWWWWWK.',
-            '.KWWWGGWWWWDDWK.',
-            '.KWWWGGWWWWDDWK.',
-            '.KWWWWWWWWWDDWK.',
-            '.KWWWWWWWWWDDWK.',
-            '.KKKKKKKKKKKKKK.'
+            '.......KK.......','......KRRK......','.....KRRRRK.....','....KRRRRRRK....',
+            '...KRRRRRRRRK...','..KRRRRRRRRRRK..','.KRRRRRRRRRRRRK.','KRRRRRRRRRRRRRRK',
+            '.KWWWWWWWWWWWWK.','.KWWWGGWWWWDDWK.','.KWWWGGWWWWDDWK.','.KWWWWWWWWWDDWK.',
+            '.KWWWWWWWWWDDWK.','.KKKKKKKKKKKKKK.'
         ];
         renderPixelArt(document.getElementById('house-body'), HOUSE_MAP,
             { K: '#2b2b3d', R: '#d64541', W: '#f6e2b3', G: '#ffd54f', D: '#8a5a33' }, 7);
 
-        // 像素雲（O=輪廓 W=雲白）：星空中多朵隨機分佈
-        const CLOUD_MAP = [
-            '..OOO......',
-            '.OWWWOOO...',
-            '..OWWWWWO..',
-            '...OOOOO...'
-        ];
+        const CLOUD_MAP = ['..OOO......','.OWWWOOO...','..OWWWWWO..','...OOOOO...'];
         for (let i = 0; i < 6; i++) {
             const cloud = document.createElement('div');
             cloud.classList.add('pixel-deco');
             renderPixelArt(cloud, CLOUD_MAP, { O: '#8fa3d8', W: '#f2f4ff' }, 5 + Math.floor(Math.random() * 5));
             cloud.style.top = (5 + Math.random() * 50) + '%';
             cloud.style.left = (Math.random() * 80) + '%';
-            document.getElementById('screen-start').appendChild(cloud);
+            screenStartEl.appendChild(cloud);
         }
 
-        // 像素星空
         const starsEl = document.getElementById('stars');
         for (let i = 0; i < 40; i++) {
             const star = document.createElement('div');
